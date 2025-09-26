@@ -1,0 +1,24 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Backend server for LiNo",
+  "keywords": [
+    "sever",
+    "lino"
+  ],
+  "homepage": "https://github.com/prana-W/LiNo#readme",
+  "bugs": {
+    "url": "https://github.com/prana-W/LiNo/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prana-W/LiNo.git"
+  },
+  "license": "ISC",
+  "author": "Pranaw Kumar",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
