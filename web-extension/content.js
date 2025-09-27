@@ -3,18 +3,20 @@
 let str = '';
 let oldStr = ':::::::::::::::::::::::::::::::';
 
+let sendDataToWorker;
+
 const getCaption = (mutationList) => {
 
     for (const mutation of mutationList) {
 
-        if(mutation.type === 'childList' && mutation.target.innerText.split('\n').length > 2) {
+        if (mutation.type === 'childList' && mutation.target.innerText.split('\n').length > 2) {
             if (oldStr !== mutation.target.innerText) {
                 str += mutation.target.innerText.split('\n')[0] + ' ';
             }
             oldStr = mutation.target.innerText;
         }
 
-            document.getElementById('description-inner').innerText = str;
+        document.getElementById('description-inner').innerText = str;
     }
 };
 
@@ -39,7 +41,18 @@ const getCaptionBtnStatus = (mutationList) => {
                     });
 
                 }, 2000)
-            } else captionObserver.disconnect();
+
+                clearInterval(sendDataToWorker);
+
+                sendDataToWorker = setInterval(() => {
+                    console.log('yeah!!!!')
+
+                }, 10000)
+
+            } else {
+                captionObserver.disconnect();
+                clearInterval(sendDataToWorker);
+            }
 
 
         }
@@ -50,4 +63,4 @@ const captionBtnObserver = new MutationObserver(getCaptionBtnStatus);
 
 window.addEventListener('load', () => {
     captionBtnObserver.observe(document.querySelector('.ytp-subtitles-button'), {attributes: true});
-})
+});
