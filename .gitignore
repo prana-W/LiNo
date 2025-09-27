@@ -79,7 +79,6 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
 
 # Gatsby files
 .cache/
@@ -137,4 +136,4 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
-/test.js
+/web-extension/test.js

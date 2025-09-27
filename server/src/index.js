@@ -3,8 +3,8 @@ dotenv.config({
     path: `./.env`,
 });
 
-import connectToDatabase from './connection';
-import app from './app';
+import connectToDatabase from './connection/index.js';
+import app from './app.js';
 
 const port = process.env.PORT || 8000;
 
