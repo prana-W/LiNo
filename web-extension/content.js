@@ -45,9 +45,19 @@ const getCaptionBtnStatus = (mutationList) => {
                 clearInterval(sendDataToWorker);
 
                 sendDataToWorker = setInterval(() => {
-                    console.log('yeah!!!!')
 
-                }, 10000)
+                    chrome.runtime.sendMessage({
+                        type: 'SEND_DATA',
+                        data: str
+                    }, (response) => {
+                        if (response.success) {
+                            console.log('Data sent successfully');
+                        } else {
+                            console.error('Failed to send data:', response.error);
+                        }
+                    });
+
+                }, 2000)
 
             } else {
                 captionObserver.disconnect();
