@@ -1,34 +1,37 @@
-// Get the caption text
+// Callback function to get the caption text
 
 const getCaption = (mutationList) => {
+
     for (const mutation of mutationList) {
-        if (mutation.type === "characterData") {
-            document.getElementById('description-inner').innerText = mutation.characterData;
-        }
+
+            document.getElementById('description-inner').innerText = mutation.target.innerText;
     }
 };
 
 const captionObserver = new MutationObserver(getCaption);
 
 
-// Get the caption button status
-
+// Callback function to check captionButtonStatus and add mutationObserver to the captions
 const getCaptionBtnStatus = (mutationList) => {
     for (const mutation of mutationList) {
-        if (mutation.type === "attributes" && mutation.attributeName === 'aria-pressed') {
+        if (mutation.attributeName === 'aria-pressed') {
 
             const isSubtitleOn = mutation.target.ariaPressed === 'true';
 
-            console.log(isSubtitleOn);
+            if (isSubtitleOn) {
+                setTimeout(() => {
 
-            if (isSubtitleOn) captionObserver.observe(document.querySelectorAll('.ytp-caption-segment')[0], {characterData: true});
+                    captionObserver.observe(document.querySelector('#ytp-caption-window-container'), {characterData: true, childList: true, subtree: true});
+
+                }, 2000)
+            }
+
             else captionObserver.disconnect();
+
 
         }
     }
 };
 
 const captionBtnObserver = new MutationObserver(getCaptionBtnStatus);
-captionBtnObserver.observe(document.querySelectorAll('.ytp-subtitles-button')[0], { attributes: true });
-
-
+captionBtnObserver.observe(document.querySelector('.ytp-subtitles-button'), { attributes: true });
