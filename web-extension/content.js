@@ -1,10 +1,20 @@
 // Callback function to get the caption text
 
+let str = '';
+let oldStr = ':::::::::::::::::::::::::::::::';
+
 const getCaption = (mutationList) => {
 
     for (const mutation of mutationList) {
 
-            document.getElementById('description-inner').innerText = mutation.target.innerText;
+        if(mutation.type === 'childList' && mutation.target.innerText.split('\n').length > 2) {
+            if (oldStr !== mutation.target.innerText) {
+                str += mutation.target.innerText.split('\n')[0] + ' ';
+            }
+            oldStr = mutation.target.innerText;
+        }
+
+            document.getElementById('description-inner').innerText = str;
     }
 };
 
@@ -21,12 +31,15 @@ const getCaptionBtnStatus = (mutationList) => {
             if (isSubtitleOn) {
                 setTimeout(() => {
 
-                    captionObserver.observe(document.querySelector('#ytp-caption-window-container'), {characterData: true, childList: true, subtree: true});
+                    captionObserver.observe(document.querySelector('#ytp-caption-window-container'), {
+                        characterData: true,
+                        childList: true,
+                        subtree: true,
+                        attributes: true
+                    });
 
                 }, 2000)
-            }
-
-            else captionObserver.disconnect();
+            } else captionObserver.disconnect();
 
 
         }
@@ -34,4 +47,7 @@ const getCaptionBtnStatus = (mutationList) => {
 };
 
 const captionBtnObserver = new MutationObserver(getCaptionBtnStatus);
-captionBtnObserver.observe(document.querySelector('.ytp-subtitles-button'), { attributes: true });
+
+window.addEventListener('load', () => {
+    captionBtnObserver.observe(document.querySelector('.ytp-subtitles-button'), {attributes: true});
+})
