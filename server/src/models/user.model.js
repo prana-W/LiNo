@@ -14,13 +14,18 @@ const userSchema = new mongoose.Schema({
         type: String,
         unique: true,
         required: true
+    },
+    refreshToken: {
+        type: String,
+        default: null
     }
 }, {timestamps: true});
 
-// Add password hashing
-userSchema.pre('save', function(next) {
+//! Add password hashing later
+// userSchema.pre('save', function(next) {
+//
+// })
 
-})
 
 const User = mongoose.model("User", userSchema);
 

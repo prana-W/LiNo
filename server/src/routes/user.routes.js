@@ -1,8 +1,9 @@
-import router from "express";
+import {Router} from "express";
+import {signupUser} from "../controllers/user.controller.js";
 
-const userRouter = router();
+const userRouter = Router();
 
-// router.route("/signup").post()
+userRouter.route("/signup").post(signupUser);
 //
 // router.routes("/login").post()
 
