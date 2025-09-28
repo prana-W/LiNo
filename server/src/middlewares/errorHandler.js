@@ -1,11 +1,9 @@
 import {ApiResponse} from "../utility/index.js";
+import statusCode from "../constants/statusCode.js";
 
-const errorHandler = (err, req, res ) => {
+const errorHandler = (err, req, res, next ) => {
 
-    const errorObj = new ApiResponse(err.statusCode || 500, err.message || "Internal Server Error");
-
-    console.error(errorObj);
-    return res.status(err.statusCode || 500).json(errorObj);
+    return res.status(err.statusCode || statusCode.INTERNAL_SERVER_ERROR).json(new ApiResponse(err.statusCode || statusCode.INTERNAL_SERVER_ERROR, err.message || "Internal Server Error"));
 }
 
 export default errorHandler;
