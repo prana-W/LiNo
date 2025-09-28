@@ -1,8 +1,8 @@
-import {asyncHandler, ApiResponse} from '../utility/index.js'
+import {asyncHandler, ApiResponse } from '../utility/index.js'
 
 
 const checkHealth = asyncHandler(async (req, res) => {
-    return res.json(new ApiResponse(200, null, 'Server is running hehehe!'));
+    return res.json(new ApiResponse(200, 'Server is running hehehe!'));
 })
 
 export default checkHealth;
