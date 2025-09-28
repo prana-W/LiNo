@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import userRouter from './routes/user.routes.js';
+import checkHealth from "./controllers/checkHealth.controller.js";
 
 const app = express();
 
@@ -25,7 +26,7 @@ app.use(express.static('public'));
 
 app.use(cookieParser());
 
-
+app.get('/api/v1/check-health', checkHealth);
 
 
 //Routes Declaration

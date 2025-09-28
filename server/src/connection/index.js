@@ -5,7 +5,7 @@ async function connectToDatabase() {
 
     try {
 
-        const connectionInstance = await mongoose.connect(`${process.env.MONGO_URL}`);
+        const connectionInstance = await mongoose.connect(`${process.env.MONGODB_URI}`);
 
         if (connectionInstance) console.log('Database connected successfully!')
 
