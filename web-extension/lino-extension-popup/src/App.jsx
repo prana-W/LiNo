@@ -33,8 +33,7 @@ function App() {
 
   return (
     <>
-        <Home/>
-        {/*<RouterProvider router={router} />*/}
+        <RouterProvider router={router} />
     </>
   )
 }

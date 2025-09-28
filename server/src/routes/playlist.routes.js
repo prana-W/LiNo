@@ -1,8 +1,7 @@
-import router from "express";
+import router from 'express';
 
 const playlistRouter = router();
 
-router.route("/add-playlist")
-    .post ()
+router.route('/add-playlist').post();
 
 export default playlistRouter;

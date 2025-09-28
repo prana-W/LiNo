@@ -2,8 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import userRouter from './routes/user.routes.js';
-import checkHealth from "./controllers/checkHealth.controller.js";
-import {errorHandler} from "./middlewares/index.js";
+import checkHealth from './controllers/checkHealth.controller.js';
+import {errorHandler} from './middlewares/index.js';
 
 const app = express();
 
@@ -15,9 +15,7 @@ const app = express();
 //     })
 // );
 
-app.use(
-    express.json()
-);
+app.use(express.json());
 
 app.use(express.urlencoded({extended: true}));
 app.use(express.static('public'));

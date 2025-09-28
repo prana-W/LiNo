@@ -8,13 +8,12 @@ import app from './app.js';
 
 const port = process.env.PORT || 8000;
 
-
 connectToDatabase()
-.then(() => {
-    app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
+    .then(() => {
+        app.listen(port, () => {
+            console.log(`Server is running on port ${port}`);
+        });
+    })
+    .catch((err) => {
+        console.error('There was an error connecting to the database', err);
     });
-})
-.catch((err) => {
-    console.error('There was an error connecting to the database', err);
-})
