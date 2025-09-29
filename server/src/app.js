@@ -4,10 +4,10 @@ import cookieParser from 'cookie-parser';
 import authRouter from './routes/auth.routes.js';
 import checkHealth from './controllers/checkHealth.controller.js';
 import {errorHandler} from './middlewares/index.js';
+import {authRateLimiter} from "./middlewares/rateLimiter.js";
 
 const app = express();
 
-// Necessary Middlewares
 app.use(
     cors({
         origin: process.env.CORS_ORIGIN,
@@ -24,7 +24,7 @@ app.use(cookieParser());
 // API Routes
 
 app.get('/api/v1/check-health', checkHealth);
-app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/auth', authRateLimiter(), authRouter);
 
 // Error Handling
 app.use(errorHandler);
