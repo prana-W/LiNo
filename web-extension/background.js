@@ -1,9 +1,19 @@
-// Listen for messages from content script
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.type === 'SEND_DATA') {
+import {io} from './lib/socket.io.esm.min.js';
 
-        console.log(message.data);
+const socket = io('http://localhost:8000', {
+    transports: ['websocket', 'polling'], // Try websocket first, fallback to polling
+    reconnection: true,
+    reconnectionDelay: 1000,
+});
 
-        return true; // Keep message channel open for async response
-    }
+socket.on("connect", () => {
+    console.log('Connected to server!', socket.id);
+});
+
+socket.on("connect_error", (error) => {
+    console.error('Connection error:', error);
+});
+
+socket.on("disconnect", (reason) => {
+    console.log('Disconnected:', reason);
 });

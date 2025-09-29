@@ -46,16 +46,16 @@ const getCaptionBtnStatus = (mutationList) => {
 
                 sendDataToWorker = setInterval(() => {
 
-                    chrome.runtime.sendMessage({
-                        type: 'SEND_DATA',
-                        data: str
-                    }, (response) => {
-                        if (response.success) {
-                            console.log('Data sent successfully');
-                        } else {
-                            console.error('Failed to send data:', response.error);
-                        }
-                    });
+                    // chrome.runtime.sendMessage({
+                    //     type: 'SEND_DATA',
+                    //     data: str
+                    // }, (response) => {
+                    //     if (response.success) {
+                    //         console.log('Data sent successfully');
+                    //     } else {
+                    //         console.error('Failed to send data:', response.error);
+                    //     }
+                    // });
 
                 }, 2000)
 
