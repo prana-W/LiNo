@@ -1,4 +1,10 @@
+import verifyAccessToken from "./middlewares/verifyAccessToken.middleware.js";
+
 function registerSockets(io) {
+
+
+    // Middleware to verify access token for each socket connection
+    io.use(verifyAccessToken);
 
     io.on('connection', (socket) => {
 
@@ -10,10 +16,9 @@ function registerSockets(io) {
         // After successfully saved in DB, emit a confirmation to the payload sender client, which is used to delete the cached string
 
         console.log('A user connected:', socket.id);
+        console.log(socket?.username);
 
-        io.userId;
-
-        socket.join("userId");
+        socket.join(socket?.username);
 
         socket.on('subtitle', (payload) => {
             console.log(payload);
