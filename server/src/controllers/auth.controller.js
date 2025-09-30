@@ -58,7 +58,8 @@ const loginUser = asyncHandler(async (req, res) => {
     // After all validations, generate tokens, store refresh token in DB and send tokens in cookies
 
     const refreshToken = await user.generateAndUpdateRefreshToken(user?._id);
-    const accessToken = await user.generateAccessTokenFromRefreshToken(refreshToken);
+    const accessToken =
+        await user.generateAccessTokenFromRefreshToken(refreshToken);
 
     if (!refreshToken || !accessToken) {
         throw new ApiError(

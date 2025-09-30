@@ -1,20 +1,25 @@
-import {ApiError, asyncHandler} from "../utility/index.js";
-import statusCode from "../constants/statusCode.js";
-import {User} from "../models/index.js";
-import jwt from "jsonwebtoken";
+import {ApiError, asyncHandler} from '../utility/index.js';
+import statusCode from '../constants/statusCode.js';
+import {User} from '../models/index.js';
+import jwt from 'jsonwebtoken';
 
-const verifyAccessToken = asyncHandler (async(req, res, next) => {
+const verifyAccessToken = asyncHandler(async (req, res, next) => {
     const accessToken = req?.cookies?.accessToken;
 
     if (!accessToken) {
         throw new ApiError(statusCode.UNAUTHORIZED, 'Access token is missing!');
     }
 
-    const verifiedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+    const verifiedToken = jwt.verify(
+        accessToken,
+        process.env.ACCESS_TOKEN_SECRET
+    );
 
     if (!verifiedToken) {
-        throw new ApiError(statusCode.UNAUTHORIZED, 'Access token validation error!');
-
+        throw new ApiError(
+            statusCode.UNAUTHORIZED,
+            'Access token validation error!'
+        );
     }
 
     const user = User.findById(verifiedToken?.userId).select('-password -__v');
@@ -26,7 +31,6 @@ const verifyAccessToken = asyncHandler (async(req, res, next) => {
     req.user = user;
 
     next();
+});
 
-})
-
-export {verifyAccessToken}
+export {verifyAccessToken};
