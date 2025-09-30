@@ -22,5 +22,5 @@ connectToDatabase().then(() => {
 });
 
 connectToRedis().then(() => {
-    console.log(`✅ Connected to Redis on port`);
+    console.log(`✅ Redis connected: ${process.env.REDIS_URL}`);
 });

@@ -1,12 +1,15 @@
-import {verifyAccessToken} from '../middleware/auth.js';
+import verifyAccessToken from './middlewares/verifyAccessToken.middleware.js';
 import Lecture from '../models/lecture.model.js';
+
+
+// key: username:video_url for Redis Functionalities
 
 function registerSockets(io) {
     // Middleware to verify access token for each socket connection
     io.use(verifyAccessToken);
 
     io.on('connection', (socket) => {
-        console.log('A user connected:', socket.id);
+        console.log('✅ Socket connected: ', socket.id);
 
         console.log(socket?.username);
 

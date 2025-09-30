@@ -6,7 +6,7 @@ async function connectToDatabase() {
             `${process.env.MONGODB_URI}`
         );
 
-        if (connectionInstance) console.log('Database connected successfully!');
+        if (connectionInstance) console.log(`✅ Database connected: ${process.env.MONGODB_URI}`);
     } catch (error) {
         console.error('Error in connecting to database:', error);
         process.exit(1);
