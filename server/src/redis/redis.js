@@ -4,7 +4,7 @@ const client = createClient({
     url: process.env.REDIS_URL,
 });
 
-// key: username:video_url
+//! key: username:videoUrl
 const retrievePayload = async (key) => {
     return await client.lRange(key, 0, -1);
 }
@@ -12,7 +12,7 @@ const retrievePayload = async (key) => {
 const storePayload = async (key, payload) => {
 
     const data = {
-        subtitle: payload.subtitle,
+        caption: payload.caption,
         timestamp: payload.timestamp,
     }
 
