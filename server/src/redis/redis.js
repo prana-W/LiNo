@@ -16,7 +16,7 @@ const storePayload = async (key, payload) => {
         timestamp: payload.timestamp,
     }
 
-    await client.rPush(key, JSON.stringify(data));
+    return await client.rPush(key, JSON.stringify(data));
 
 
 }

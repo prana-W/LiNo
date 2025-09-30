@@ -1,14 +1,7 @@
 import {io} from './lib/socket.io.esm.min.js';
-import {SERVER_URL} from './constants.js';
+import {SERVER_URL, socketClientOptions} from './constants.js';
 
-const socket = io(SERVER_URL, {
-    transports: ['websocket', 'polling'],
-    reconnection: true,
-    reconnectionDelay: 2000,
-    auth: {
-        accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGQ5YWZkOTgyZjFjNjk2YjVjYTQ2ZDgiLCJ1c2VybmFtZSI6InRlc3Q2IiwiZW1haWwiOiJ0ZXN0QHRlc3QuY29tNiIsImlhdCI6MTc1OTE1NTgzNCwiZXhwIjoxNzU5NzYwNjM0fQ.rmRmbNRJ3DSzWqmURVEhYeJC07feW3ajPt815VqfJ_U",
-    }
-});
+const socket = io(SERVER_URL, socketClientOptions);
 
 socket.on("connect", () => {
     console.log('Connected to server!', socket.id);
@@ -21,3 +14,20 @@ socket.on("connect_error", (error) => {
 socket.on("disconnect", (reason) => {
     console.log('Disconnected:', reason);
 });
+
+socket.on('confirmation', (payload) => {
+
+    console.log('Data reached the server!', payload);
+
+})
+
+
+setInterval(() => {
+
+    socket.emit('packet', {
+        caption: 'Hello, server! This is a periodic message from the client.',
+        timestamp: new Date().toISOString(),
+        videoUrl: 'google.com'
+    })
+
+}, 5000)
