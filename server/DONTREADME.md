@@ -8,3 +8,11 @@
 - Add a global error handler middleware.
 - Add a HTTP_CODE file
 - Add a Rate Limiter to all the routes
+
+
+## Redis Database Functionality
+
+- Whenever client sends a data to the server via socket through 'packet' event, store the payload inn the Redis DB in Lists
+- Emit the changes to the other sockets inside the room
+- Whenever the size of Redis DB for any socket connection instance is > 12, save the changes in the MongoDB and delete everything existing in the DB for that user
+- If, by chance, any connection breaks for any user in the room, instantly backup the remaining data in the redis DB irrespective of the size (NOTE: Check how to get the 'key' of the redis DB in such case)
