@@ -22,12 +22,12 @@ socket.on('confirmation', (payload) => {
 })
 
 
-setInterval(() => {
-
-    socket.emit('packet', {
-        caption: 'Hello, server! This is a periodic message from the client.',
-        timestamp: new Date().toISOString(),
-        videoUrl: 'google.com'
-    })
-
-}, 5000)
+// setInterval(() => {
+//
+//     socket.emit('packet', {
+//         caption: 'Hello, server! This is a periodic message from the client.',
+//         timestamp: new Date().toISOString(),
+//         videoUrl: 'google.com'
+//     })
+//
+// }, 5000)

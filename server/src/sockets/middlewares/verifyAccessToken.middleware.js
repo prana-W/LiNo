@@ -25,7 +25,7 @@ const verifyAccessToken = (socket, next) => {
         }
 
         // Add username to the socket instance for future use
-        socket.username = verifiedToken?.username;
+        socket.userId = verifiedToken?.userId;
 
         next();
     } catch (err) {

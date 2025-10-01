@@ -7,7 +7,7 @@ function registerSockets(io) {
 
     io.on('connection', (socket) => {
         console.log('✅ Socket connected: ', socket.id);
-        // socket.join(socket?.username);
+        // socket.join(socket?.userId);
 
         socket.on('packet', handlePacket(socket));
     });

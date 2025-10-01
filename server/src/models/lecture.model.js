@@ -6,9 +6,10 @@ const lectureSchema = new mongoose.Schema(
             type: String,
             default: 'New Lecture',
         },
-        link: {
+        videoUrl: {
             type: String,
             required: true,
+            index: true,
         },
         description: {
             type: String,
@@ -25,6 +26,7 @@ const lectureSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: true,
+            index: true,
         },
         playlist: {
             type: mongoose.Schema.Types.ObjectId,

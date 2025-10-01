@@ -1,11 +1,12 @@
 import {retrievePayload, storePayload} from '../../redis/redis.js';
+import {connector} from '../../constants/miscellaneous.js';
 
 //! payload: {caption, videoUrl, timestamp}
-//! key: username:video_url for Redis Functionalities
+//! key: userId:video_url for Redis Functionalities
 const handlePacket = (socket) => {
     return async (payload) => {
         try {
-            const redisKey = `${socket?.username}:${payload?.videoUrl}`;
+            const redisKey = `${socket?.userId}${connector}${payload?.videoUrl}`;
             const response = await storePayload(redisKey, payload);
             const existingData = await retrievePayload(redisKey);
 
