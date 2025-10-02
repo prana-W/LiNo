@@ -1,143 +1,89 @@
 import { useState } from "react";
-import { useSignup } from "../hooks/index.js";
+import { useSignup } from "../hooks/useSignup.js";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react";
 
 function Signup() {
-    const [formData, setFormData] = useState({
-        username: "",
-        email: "",
-        password: "",
-        confirmPassword: ""
-    });
+    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
 
+    const [formData, setFormData] = useState(null);
     const { response, loading, error } = useSignup(formData);
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
-
-    const handleSignup = () => {
-        // Basic validation
-        if (formData.password !== formData.confirmPassword) {
-            alert("Passwords don't match!");
-            return;
-        }
-
-        // The useSignup hook should handle the API call
-        // If response has success, you can redirect here
-        if (response?.success) {
-            // Redirect to login page
-            // window.location.href = "/login"; // or use React Router
-        }
+    const handleSignUp = (e) => {
+        e.preventDefault();
+        setFormData({ username, email, password });
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <Card className="w-full max-w-md">
-                <CardHeader className="space-y-1">
-                    <CardTitle className="text-2xl font-bold text-center">
-                        Create an account
-                    </CardTitle>
-                    <CardDescription className="text-center">
-                        Enter your details to create your account
-                    </CardDescription>
+        <div className="flex justify-center items-center min-h-screen bg-muted/30">
+            <Card className="w-[380px] shadow-lg">
+                <CardHeader>
+                    <CardTitle className="text-center">Create an Account</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-4">
-                        <div className="space-y-2">
+                    <form onSubmit={handleSignUp} className="space-y-4">
+                        <div className="grid gap-2">
                             <Label htmlFor="username">Username</Label>
                             <Input
                                 id="username"
-                                name="username"
                                 type="text"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
                                 placeholder="Enter your username"
-                                value={formData.username}
-                                onChange={handleInputChange}
                                 required
                             />
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="grid gap-2">
                             <Label htmlFor="email">Email</Label>
                             <Input
                                 id="email"
-                                name="email"
                                 type="email"
-                                placeholder="Enter your email"
-                                value={formData.email}
-                                onChange={handleInputChange}
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="you@example.com"
                                 required
                             />
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="grid gap-2">
                             <Label htmlFor="password">Password</Label>
                             <Input
                                 id="password"
-                                name="password"
                                 type="password"
-                                placeholder="Enter your password"
-                                value={formData.password}
-                                onChange={handleInputChange}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder="********"
                                 required
                             />
                         </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="confirmPassword">Confirm Password</Label>
-                            <Input
-                                id="confirmPassword"
-                                name="confirmPassword"
-                                type="password"
-                                placeholder="Confirm your password"
-                                value={formData.confirmPassword}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </div>
-
-                        {error && (
-                            <Alert variant="destructive">
-                                <AlertDescription>
-                                    {error.message || "An error occurred during signup"}
-                                </AlertDescription>
-                            </Alert>
-                        )}
-
-                        {response?.success && (
-                            <Alert>
-                                <AlertDescription>
-                                    Account created successfully! Redirecting to login...
-                                </AlertDescription>
-                            </Alert>
-                        )}
-
-                        <Button
-                            onClick={handleSignup}
-                            className="w-full"
-                            disabled={loading}
-                        >
-                            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            {loading ? "Creating Account..." : "Sign Up"}
+                        <Button type="submit" className="w-full" disabled={loading}>
+                            {loading ? "Signing up..." : "Sign Up"}
                         </Button>
-                    </div>
+                    </form>
 
-                    <div className="mt-4 text-center text-sm">
-                        <span className="text-gray-600">Already have an account? </span>
-                        <a href="/login" className="text-blue-600 hover:text-blue-500 font-medium">
-                            Sign in
-                        </a>
-                    </div>
+                    {error && (
+                        <Alert variant="destructive" className="mt-4">
+                            <AlertDescription>{error}</AlertDescription>
+                        </Alert>
+                    )}
+                    {response && (
+                        <Alert className="mt-4">
+                            <AlertDescription>
+                                {response.message || "Signup successful!"}
+                            </AlertDescription>
+                        </Alert>
+                    )}
                 </CardContent>
+                <CardFooter className="text-sm text-muted-foreground text-center">
+                    Already have an account? <span className="ml-1 text-primary">Login</span>
+                </CardFooter>
             </Card>
         </div>
     );
