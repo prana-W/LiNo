@@ -44,6 +44,41 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 });
 
+// Receive Login Confirmation
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "LOGIN_SUCCESS") {
+
+        chrome.cookies.get(
+            { url: SERVER_URL, name: "refreshToken" },
+            (cookie) => {
+                if (cookie) {
+                    chrome.storage.local.set({ refreshToken: cookie.value });
+                }
+            }
+        );
+
+        chrome.cookies.get(
+            { url: SERVER_URL, name: "accessToken" },
+            (cookie) => {
+                if (cookie) {
+                    chrome.storage.local.set({ accessToken: cookie.value });
+                }
+            }
+        );
+
+        sendResponse({
+
+            "statusCode": 200,
+            "message": "Tokens stored successfully.",
+            "success": true
+
+        });
+    }
+
+    return true;
+});
+
+
 
 
 // setInterval(() => {

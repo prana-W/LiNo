@@ -17,6 +17,15 @@ export function useLogin(formData) {
                 const res = await api.post('/auth/login', formData);
                 setResponse(res);
 
+
+                if (typeof chrome !== "undefined" && chrome.runtime) {
+                    chrome.runtime.sendMessage({ type: "LOGIN_SUCCESS" }, (res) => {
+                        console.log("Response from background:", res);
+                    });
+                }
+
+
+
             } catch (error) {
 
                 setError(error?.response?.data?.message || error?.message);
