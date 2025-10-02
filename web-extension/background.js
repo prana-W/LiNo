@@ -35,11 +35,6 @@ socket.on("disconnect", (reason) => {
     console.log('Disconnected:', reason);
 });
 
-socket.on('confirmation', (payload) => {
-
-    console.log('Data reached the server!', payload);
-
-})
 
 
 // Connect when on Youtube video
@@ -87,6 +82,32 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
 });
 
+// TODO: First save the caption in storage and then send it to the server from there, instead of directly sending it to the server without storing
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "PACKET") {
+
+        console.log('Received request to send data!!!!')
+        socket.emit('packet', {
+        caption: message.data?.caption,
+        timestamp: new Date().toISOString(),
+        videoUrl: 'google.com'
+    });
+
+        socket.on('confirmation', () => {
+
+            sendResponse({
+                "statusCode": 200,
+                "message": "Data Emitted successfully!",
+                "success": true
+            })
+
+        })
+
+
+    }
+
+})
 
 
 

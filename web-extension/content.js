@@ -22,9 +22,9 @@ const getCaption = (mutationList) => {
 
 const captionObserver = new MutationObserver(getCaption);
 
-
 // Callback function to check captionButtonStatus and add mutationObserver to the captions
 const getCaptionBtnStatus = (mutationList) => {
+
     for (const mutation of mutationList) {
         if (mutation.attributeName === 'aria-pressed') {
 
@@ -42,26 +42,32 @@ const getCaptionBtnStatus = (mutationList) => {
 
                 }, 2000)
 
+                // Start capturing the subtitles after 2 seconds (to allow it to load properly)
+
                 clearInterval(sendDataToWorker);
 
                 sendDataToWorker = setInterval(() => {
 
-                    // chrome.runtime.sendMessage({
-                    //     type: 'SEND_DATA',
-                    //     data: str
-                    // }, (response) => {
-                    //     if (response.success) {
-                    //         console.log('Data sent successfully');
-                    //     } else {
-                    //         console.error('Failed to send data:', response.error);
-                    //     }
-                    // });
+                    chrome.runtime.sendMessage({
+                        type: 'PACKET',
+                        data: {
+                            caption: str,
+                        }
+                    }, (response) => {
+                        if (response.success === true) {
+                            str = "";
+                            oldStr = ":::::::::::::::::::::::::::::::"
+                            console.log('Data sent successfully');
+                        } else {
+                            console.error('Failed to send data:', response.error);
+                        }
+                    });
 
-                }, 2000)
+                }, 5000)
 
             } else {
-                captionObserver.disconnect();
                 clearInterval(sendDataToWorker);
+                captionObserver.disconnect();
             }
 
 

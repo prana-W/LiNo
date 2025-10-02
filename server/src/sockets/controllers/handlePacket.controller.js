@@ -5,6 +5,7 @@ import {connector} from '../../constants/miscellaneous.js';
 //! key: userId:video_url for Redis Functionalities
 const handlePacket = (socket) => {
     return async (payload) => {
+        console.log(payload)
         try {
             const redisKey = `${socket?.userId}${connector}${payload?.videoUrl}`;
             const response = await storePayload(redisKey, payload);
