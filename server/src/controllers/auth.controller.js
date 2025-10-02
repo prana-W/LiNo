@@ -52,7 +52,7 @@ const loginUser = asyncHandler(async (req, res) => {
     const isPasswordMatched = await user.comparePassword(password);
 
     if (!isPasswordMatched) {
-        throw new ApiError(statusCode.UNAUTHORIZED, 'Invalid credentials!');
+        throw new ApiError(statusCode.UNAUTHORIZED, 'Incorrect password!');
     }
 
     // After all validations, generate tokens, store refresh token in DB and send tokens in cookies
