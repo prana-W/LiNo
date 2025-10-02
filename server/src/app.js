@@ -5,8 +5,11 @@ import authRouter from './routes/auth.routes.js';
 import checkHealth from './controllers/checkHealth.controller.js';
 import {errorHandler} from './middlewares/index.js';
 import {authRateLimiter} from './middlewares/rateLimiter.js';
+import morgan from 'morgan';
 
 const app = express();
+
+app.use(morgan('dev'))
 
 app.use(
     cors({
