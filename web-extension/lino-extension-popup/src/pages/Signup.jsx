@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {useNavigate} from "react-router-dom";
 
 function Signup() {
     const [username, setUsername] = useState("");
@@ -18,6 +19,8 @@ function Signup() {
         e.preventDefault();
         setFormData({ username, email, password });
     };
+
+    const navigate = useNavigate();
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-muted/30">
@@ -82,7 +85,7 @@ function Signup() {
                     )}
                 </CardContent>
                 <CardFooter className="text-sm text-muted-foreground text-center">
-                    Already have an account? <span className="ml-1 text-primary">Login</span>
+                    Already have an account? <span className="ml-1 text-primary" onClick={() => navigate('/login')}>Login</span>
                 </CardFooter>
             </Card>
         </div>

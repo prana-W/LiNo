@@ -1,5 +1,5 @@
 import { HashRouter, Routes, Route } from 'react-router-dom';
-import { Home, Signup } from './pages';
+import { Home, Signup, Login } from './pages';
 import Layout from './Layout';
 
 function App() {
@@ -7,8 +7,9 @@ function App() {
         <HashRouter>
             <Routes>
                 <Route path="/" element={<Layout />}>
-                    {/*<Route path="" element={<Home />} />*/}
-                    <Route path="" element={<Signup />} />
+                    <Route path="" element={<Home />} />
+                    <Route path="signup" element={<Signup />} />
+                    <Route path="login" element={<Login />} />
                     {/* Add other routes here */}
                 </Route>
             </Routes>
