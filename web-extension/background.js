@@ -36,7 +36,6 @@ socket.on("disconnect", (reason) => {
 });
 
 
-
 // Connect when on Youtube video
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status === "complete" && tab.url?.includes("youtube.com/watch")) {
@@ -87,11 +86,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "PACKET") {
 
-        console.log('Received request to send data!!!!')
+        console.log('Received request to send data!!!!');
+        console.log(message.data?.caption)
+
         socket.emit('packet', {
         caption: message.data?.caption,
-        timestamp: new Date().toISOString(),
-        videoUrl: 'google.com'
+        timestamp: new Date().toLocaleTimeString(),
+        videoUrl: 'test'
     });
 
         socket.on('confirmation', () => {

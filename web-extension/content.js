@@ -4,6 +4,7 @@ let str = '';
 let oldStr = ':::::::::::::::::::::::::::::::';
 
 let sendDataToWorker;
+let timeOutForCaption;
 
 const getCaption = (mutationList) => {
 
@@ -31,7 +32,7 @@ const getCaptionBtnStatus = (mutationList) => {
             const isSubtitleOn = mutation.target.ariaPressed === 'true';
 
             if (isSubtitleOn) {
-                setTimeout(() => {
+                timeOutForCaption = setTimeout(() => {
 
                     captionObserver.observe(document.querySelector('#ytp-caption-window-container'), {
                         characterData: true,
@@ -48,24 +49,29 @@ const getCaptionBtnStatus = (mutationList) => {
 
                 sendDataToWorker = setInterval(() => {
 
-                    chrome.runtime.sendMessage({
-                        type: 'PACKET',
-                        data: {
-                            caption: str,
-                        }
-                    }, (response) => {
-                        if (response.success === true) {
-                            str = "";
-                            oldStr = ":::::::::::::::::::::::::::::::"
-                            console.log('Data sent successfully');
-                        } else {
-                            console.error('Failed to send data:', response.error);
-                        }
-                    });
+                    if (str) {
+
+                        // Todo: Check if chrome exists before using it. Do this everywhere
+                        chrome.runtime.sendMessage({
+                            type: 'PACKET',
+                            data: {
+                                caption: str,
+                            }
+                        }, (response) => {
+                            if (response.success === true) {
+                                str = "";
+                                oldStr = ":::::::::::::::::::::::::::::::"
+                                console.log('Data sent successfully');
+                            } else {
+                                console.error('Failed to send data:', response.error);
+                            }
+                        });
+                    }
 
                 }, 5000)
 
             } else {
+                clearInterval(timeOutForCaption);
                 clearInterval(sendDataToWorker);
                 captionObserver.disconnect();
             }
@@ -80,3 +86,9 @@ const captionBtnObserver = new MutationObserver(getCaptionBtnStatus);
 window.addEventListener('load', () => {
     captionBtnObserver.observe(document.querySelector('.ytp-subtitles-button'), {attributes: true});
 });
+
+window.addEventListener('unload', () => {
+    captionObserver.disconnect();
+    clearInterval(sendDataToWorker);
+    clearInterval(timeOutForCaption);
+})
