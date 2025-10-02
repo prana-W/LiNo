@@ -5,12 +5,20 @@ const socket = io(SERVER_URL, socketClientOptions);
 
 const connectToSocket = () => {
     console.log('Attempting to connect to server...');
+    chrome.storage.local.get(["accessToken", "refreshToken"], (result) => {
+        if (result) {
+            socket.auth.accessToken = result.accessToken;
+            socket.auth.refreshToken = result.refreshToken;
+        }
+    });
     socket.connect();
 }
 
 const disconnectFromSocket = () => {
     if (socket.connected) {
         console.log('Disconnecting from server...');
+        socket.auth.accessToken = null;
+        socket.auth.refreshToken = null;
         socket.disconnect();
     }
 }
@@ -44,7 +52,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 });
 
-// Receive Login Confirmation
+// Receive Login Confirmation and adding the tokens to the storage
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "LOGIN_SUCCESS") {
 
@@ -65,6 +73,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 }
             }
         );
+
 
         sendResponse({
 
