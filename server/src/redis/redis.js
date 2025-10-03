@@ -16,7 +16,7 @@ client.on('error', () => {
 const storePayloadToRedis = asyncHandler(async (key, payload) => {
     const currListSize = await client.rPush(key, JSON.stringify(payload));
 
-    if (currListSize >= REDIS_DB_LIST_LIMIT) {
+    if (currListSize > REDIS_DB_LIST_LIMIT) {
         await flushData(key);
     }
 
@@ -42,10 +42,13 @@ const lumpCaption = asyncHandler(async (key) => {
         str += data?.caption;
     }
 
-    await flushData(key, str);
+    return str;
+
 });
 
+// Todo: Fix deletion of collection key as well from Redis and then recreation of it again from scratch
 const flushData = asyncHandler(async (key) => {
+
     const content = await lumpCaption(key);
 
     const userId = key.split(connector)[0];
@@ -80,6 +83,8 @@ const flushData = asyncHandler(async (key) => {
         lecture.content = lecture.content + content;
         await lecture.save();
     }
+
+    console.log('Data flushed from Redis to MongoDB');
 });
 
 export {storePayloadToRedis, client, addMetaData, getMetaData};
