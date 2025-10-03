@@ -1,6 +1,7 @@
 import {createClient} from 'redis';
 import {Lecture} from '../models/index.js';
-import {connector} from '../constants/miscellaneous.js';
+import {connector, REDIS_DB_LIST_LIMIT} from '../constants/miscellaneous.js';
+import asyncHandler from './utility/asyncHandler.redis.js';
 
 const client = createClient({
     url: process.env.REDIS_URL,
@@ -11,82 +12,74 @@ client.on('error', () => {
 });
 
 //! key: userId${connector}videoUrl
-const retrievePayload = async (key, start = 0, end = -1) => {
-    try {
-        return await client.lRange(key, start, end);
-    } catch (error) {
-        throw error;
+
+const storePayloadToRedis = asyncHandler(async (key, payload) => {
+    const currListSize = await client.rPush(key, JSON.stringify(payload));
+
+    if (currListSize >= REDIS_DB_LIST_LIMIT) {
+        await flushData(key);
     }
-};
 
-const storePayload = async (key, payload) => {
-    try {
-        return await client.rPush(key, JSON.stringify(payload?.data));
-    } catch (error) {
-        throw error;
+    return currListSize;
+});
+
+const addMetaData = asyncHandler(async (key, metaData) => {
+    return await client.json.set(`${key}${connector}metadata`, '$', metaData);
+});
+
+const getMetaData = asyncHandler(async (key) => {
+    return await client.json.get(`${key}${connector}metadata`, {path: '$'});
+});
+
+const lumpCaption = asyncHandler(async (key) => {
+    let str = '';
+
+    for (let i = 0; i < REDIS_DB_LIST_LIMIT; i++) {
+        const data = JSON.parse(await client.lPop(key));
+
+        if (!data || !data?.caption) break;
+
+        str += data?.caption;
     }
-};
 
-const addMetaData = async (key, metaData) => {
-    try {
-        return await client.json.set(key, '$', metaData);
-    } catch (error) {
-        throw error;
-    }
-};
+    await flushData(key, str);
+});
 
-const getMetaData = async (key) => {
-    try {
-        return await client.json.get(key, {path: '$'});
-    } catch (error) {
-        throw error;
-    }
-};
+const flushData = asyncHandler(async (key) => {
+    const content = await lumpCaption(key);
 
-// Todo: Run this after is >= 30 entries in the Redis DB List
-const flushData = async (key) => {
-    try {
-        const userId = key.split(connector)[0];
-        const videoUrl = key.split(connector)[1];
+    const userId = key.split(connector)[0];
+    const videoUrl = key.split(connector)[1];
 
-        // Find a lecture document which has both same user and videoUrl
-        const existing = await Lecture.findOne({
-            $and: [{user: userId}, {videoUrl: videoUrl}],
-        });
+    const lecture = await Lecture.findOne({
+        $and: [{user: userId}, {videoUrl: videoUrl}],
+    });
 
-        // Create a new Lecture Document
-        // Todo: How to add the meta-data about the lecture
-        if (!existing) {
-            const metaData = await getMetaData(key);
+    // Todo: How to add the meta-data about the lecture
 
-            const data = {
-                name: metaData?.name || 'New Lecture',
-                videoUrl: videoUrl,
-                user: userId,
-                description: metaData?.description || '',
-                content: 'Join the existing content!!', // Todo: add the content by adding all the contents in the redis DB
-            };
-            const res = await Lecture.create(data);
+    if (!lecture) {
+        const metaData = await getMetaData(key);
 
-            if (!res) {
-                throw new Error(
-                    'There was an error in creating the lecture document'
-                );
-                //Todo: handle this error
-            }
+        const data = {
+            name: metaData?.name || 'New Lecture',
+            videoUrl: videoUrl,
+            user: userId,
+            description: metaData?.description || '',
+            content: content || '',
+        };
 
-            //Todo: Delete the data stored in the redis (the first 30 data in the List)
+        const res = await Lecture.create(data);
+
+        if (!res) {
+            throw new Error(
+                'There was an error in creating the lecture document'
+            );
+            //Todo: handle this error
         }
-    } catch (err) {
-        throw err;
+    } else {
+        lecture.content = lecture.content + content;
+        await lecture.save();
     }
-};
+});
 
-export {
-    retrievePayload,
-    storePayload,
-    client,
-    addMetaData,
-    getMetaData,
-    flushData,
-};
+export {storePayloadToRedis, client, addMetaData, getMetaData};

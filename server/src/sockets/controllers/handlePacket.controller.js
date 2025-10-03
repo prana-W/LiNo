@@ -1,4 +1,4 @@
-import {retrievePayload, storePayload} from '../../redis/redis.js';
+import {storePayloadToRedis} from '../../redis/redis.js';
 import {connector} from '../../constants/miscellaneous.js';
 
 //! payload: {caption, videoUrl, timestamp}
@@ -11,10 +11,12 @@ const handlePacket = (socket) => {
 
             const fPayload = {
                 caption: payload?.data?.caption,
-                timestamp: payload?.data?.timestamp
-            }
+                timestamp: payload?.data?.timestamp,
+            };
 
-            const response = await storePayload(redisKey, fPayload);
+            const response = await storePayloadToRedis(redisKey, fPayload);
+
+            console.log(response);
 
             if (!response) {
                 throw new Error(

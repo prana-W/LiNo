@@ -1,6 +1,6 @@
 // Callback function to get the caption text
 
-import {PACKET_EMIT_INTERVAL} from "./constants.js";
+const PACKET_EMIT_INTERVAL = 3000; // Todo: Change
 
 let str = '';
 let oldStr = ':::::::::::::::::::::::::::::::';

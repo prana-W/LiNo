@@ -21,6 +21,7 @@ const lectureSchema = new mongoose.Schema(
         },
         summarised_content: {
             type: String,
+            default: '',
         },
         user: {
             type: mongoose.Schema.Types.ObjectId,
@@ -31,7 +32,7 @@ const lectureSchema = new mongoose.Schema(
         playlist: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Playlist',
-            default: 'Recently-Added', // add the lecture to the "Recently Added" playlist by default
+            // default: 'Recently-Added', // add the lectureId for "Recently Added" playlist by default
         },
         isFavourite: {
             type: Boolean,
