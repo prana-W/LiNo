@@ -1,5 +1,7 @@
 // Callback function to get the caption text
 
+import {PACKET_EMIT_INTERVAL} from "./constants.js";
+
 let str = '';
 let oldStr = ':::::::::::::::::::::::::::::::';
 
@@ -70,7 +72,7 @@ const getCaptionBtnStatus = (mutationList) => {
                         });
                     }
 
-                }, 5000)
+                }, PACKET_EMIT_INTERVAL)
 
             } else {
                 clearInterval(timeOutForCaption);

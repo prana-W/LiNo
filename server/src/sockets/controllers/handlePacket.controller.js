@@ -9,7 +9,12 @@ const handlePacket = (socket) => {
         try {
             const redisKey = `${socket?.userId}${connector}${payload?.data?.videoUrl}`;
 
-            const response = await storePayload(redisKey, payload);
+            const fPayload = {
+                caption: payload?.data?.caption,
+                timestamp: payload?.data?.timestamp
+            }
+
+            const response = await storePayload(redisKey, fPayload);
 
             if (!response) {
                 throw new Error(
@@ -17,7 +22,7 @@ const handlePacket = (socket) => {
                 );
             }
 
-            socket.emit('fPacket', payload);
+            socket.emit('fPacket', fPayload);
             socket.emit('confirmation', {
                 success: true,
                 message: 'Packet received, stored and emitted!',
