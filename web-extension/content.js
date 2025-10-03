@@ -41,7 +41,7 @@ const getCaptionBtnStatus = (mutationList) => {
                         attributes: true
                     });
 
-                }, 2000)
+                }, 3000)
 
                 // Start capturing the subtitles after 2 seconds (to allow it to load properly)
 
@@ -56,6 +56,8 @@ const getCaptionBtnStatus = (mutationList) => {
                             type: 'PACKET',
                             data: {
                                 caption: str,
+                                videoUrl: window.location.href,
+                                timestamp: new Date().toLocaleTimeString()
                             }
                         }, (response) => {
                             if (response.success === true) {
