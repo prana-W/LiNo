@@ -17,11 +17,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     switch (message.type) {
         case "LOGIN_SUCCESS":
-            handleSuccessfulLogin();
+            handleSuccessfulLogin(message, sender, sendResponse);
             break;
 
         case "PACKET":
-            handlePacket();
+            handlePacket(message, sender, sendResponse);
             break;
 
     }

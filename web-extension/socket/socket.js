@@ -15,19 +15,22 @@ const socketClientOptions = {
 const socket = io(SERVER_URL, socketClientOptions);
 
 const connectToSocket = () => {
-    console.log('Attempting to connect to server...');
-    chrome.storage.local.get(["accessToken", "refreshToken"], (result) => {
-        if (result) {
-            socket.auth.accessToken = result.accessToken;
-            socket.auth.refreshToken = result.refreshToken;
-        }
-    });
-    socket.connect();
+
+    if (!socket.isConnected) {
+        console.log('Connecting to LiNo server...');
+        chrome.storage.local.get(["accessToken", "refreshToken"], (result) => {
+            if (result) {
+                socket.auth.accessToken = result.accessToken;
+                socket.auth.refreshToken = result.refreshToken;
+            }
+        });
+        socket.connect();
+    }
 }
 
 const disconnectFromSocket = () => {
     if (socket.connected) {
-        console.log('Disconnecting from server...');
+        console.log('Disconnecting from LiNo server...');
         socket.auth.accessToken = null;
         socket.auth.refreshToken = null;
         socket.disconnect();
@@ -35,7 +38,7 @@ const disconnectFromSocket = () => {
 }
 
 socket.on("connect", () => {
-    console.log('Connected to server!', socket.id);
+    console.log('Connected to LiNo server!', socket.id);
 });
 
 socket.on("connect_error", (error) => {
@@ -43,7 +46,7 @@ socket.on("connect_error", (error) => {
 });
 
 socket.on("disconnect", (reason) => {
-    console.log('Disconnected:', reason);
+    console.log('Disconnected from LiNo server:', reason);
 });
 
 export {socket, connectToSocket, disconnectFromSocket};

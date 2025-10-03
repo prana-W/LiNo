@@ -6,21 +6,41 @@ const client = createClient({
     url: process.env.REDIS_URL,
 });
 
+client.on('error', () => {
+    console.error('Redis Client Error');
+});
+
 //! key: userId${connector}videoUrl
 const retrievePayload = async (key, start = 0, end = -1) => {
-    return await client.lRange(key, start, end);
+    try {
+        return await client.lRange(key, start, end);
+    } catch (error) {
+        throw error;
+    }
 };
 
 const storePayload = async (key, payload) => {
-    return await client.rPush(key, JSON.stringify(payload?.data));
+    try {
+        return await client.rPush(key, JSON.stringify(payload?.data));
+    } catch (error) {
+        throw error;
+    }
 };
 
 const addMetaData = async (key, metaData) => {
-    return await client.json.set(key, '$', metaData);
+    try {
+        return await client.json.set(key, '$', metaData);
+    } catch (error) {
+        throw error;
+    }
 };
 
 const getMetaData = async (key) => {
-    return await client.json.get(key, {path: '$'});
+    try {
+        return await client.json.get(key, {path: '$'});
+    } catch (error) {
+        throw error;
+    }
 };
 
 // Todo: Run this after is >= 30 entries in the Redis DB List
@@ -58,7 +78,7 @@ const flushData = async (key) => {
             //Todo: Delete the data stored in the redis (the first 30 data in the List)
         }
     } catch (err) {
-        console.error(err);
+        throw err;
     }
 };
 

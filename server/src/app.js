@@ -9,9 +9,9 @@ import morgan from 'morgan';
 
 const app = express();
 
-app.use(morgan('dev'))
+app.use(morgan('dev'));
 
-const allowedOrigins = process.env.CORS_ORIGIN?.split(",") || [];
+const allowedOrigins = process.env.CORS_ORIGIN?.split(',') || [];
 app.use(
     cors({
         origin: allowedOrigins,
