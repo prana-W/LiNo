@@ -8,6 +8,7 @@ function registerSockets(io) {
     io.on('connection', (socket) => {
         console.log('✅ Socket connected:', socket.id);
         // socket.join(socket?.userId);
+        // Todo: Only emit to the room of the user
 
         socket.on('packet', handlePacket(socket));
 

@@ -12,12 +12,7 @@ const retrievePayload = async (key, start = 0, end = -1) => {
 };
 
 const storePayload = async (key, payload) => {
-    const data = {
-        caption: payload.caption,
-        timestamp: payload.timestamp,
-    };
-
-    return await client.rPush(key, JSON.stringify(data));
+    return await client.rPush(key, JSON.stringify(payload?.data));
 };
 
 const addMetaData = async (key, metaData) => {
@@ -27,10 +22,11 @@ const addMetaData = async (key, metaData) => {
 const getMetaData = async (key) => {
     return await client.json.get(key, {path: '$'});
 };
+
 // Todo: Run this after is >= 30 entries in the Redis DB List
 const flushData = async (key) => {
     try {
-        const userId = key.split(connector)[0]; // Todo: Invalidate username with ':'
+        const userId = key.split(connector)[0];
         const videoUrl = key.split(connector)[1];
 
         // Find a lecture document which has both same user and videoUrl

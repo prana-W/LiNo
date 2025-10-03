@@ -2,16 +2,15 @@ import {retrievePayload, storePayload} from '../../redis/redis.js';
 import {connector} from '../../constants/miscellaneous.js';
 
 //! payload: {caption, videoUrl, timestamp}
-//! key: userId:video_url for Redis Functionalities
+//! key: userId${connector}video_url for Redis Functionalities
 const handlePacket = (socket) => {
     return async (payload) => {
-        console.log(payload)
+        console.log('Incoming Payload in Redis:', payload)
         try {
-            const redisKey = `${socket?.userId}${connector}${payload?.videoUrl}`;
-            const response = await storePayload(redisKey, payload);
-            const existingData = await retrievePayload(redisKey);
 
-            console.log(existingData);
+            const redisKey = `${socket?.userId}${connector}${payload?.data?.videoUrl}`;
+
+            const response = await storePayload(redisKey, payload);
 
             if (!response) {
                 throw new Error(
@@ -25,7 +24,7 @@ const handlePacket = (socket) => {
                 message: 'Packet received, stored and emitted!',
             });
         } catch (error) {
-            //Todo: handle error
+            console.error('Error handling packet:', error);
         }
     };
 };
