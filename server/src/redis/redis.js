@@ -16,6 +16,7 @@ client.on('error', () => {
 const storePayloadToRedis = asyncHandler(async (key, payload) => {
     const currListSize = await client.rPush(key, JSON.stringify(payload));
 
+    // Todo: Do this in the background, so that if the new request comes before this is completed, packets are not lost.
     if (currListSize > REDIS_DB_LIST_LIMIT) {
         await flushData(key);
     }
@@ -43,12 +44,10 @@ const lumpCaption = asyncHandler(async (key) => {
     }
 
     return str;
-
 });
 
 // Todo: Fix deletion of collection key as well from Redis and then recreation of it again from scratch
 const flushData = asyncHandler(async (key) => {
-
     const content = await lumpCaption(key);
 
     const userId = key.split(connector)[0];

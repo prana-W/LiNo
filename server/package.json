@@ -25,6 +25,7 @@
         "format": "prettier --write ."
     },
     "dependencies": {
+        "@ngrok/ngrok": "^1.5.2",
         "bcrypt": "^6.0.0",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",

@@ -27,6 +27,7 @@ app.use(cookieParser());
 
 // API Routes
 
+app.get('/', checkHealth);
 app.get('/api/v1/check-health', checkHealth);
 app.use('/api/v1/auth', authRateLimiter(), authRouter);
 
