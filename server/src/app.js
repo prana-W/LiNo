@@ -3,7 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRouter from './routes/auth.routes.js';
 import checkHealth from './controllers/checkHealth.controller.js';
-import {errorHandler} from './middlewares/index.js';
+import {errorHandler, verifyAccessToken} from './middlewares/index.js';
 import {authRateLimiter} from './middlewares/rateLimiter.js';
 import morgan from 'morgan';
 
@@ -28,7 +28,7 @@ app.use(cookieParser());
 // API Routes
 
 app.get('/', checkHealth);
-app.get('/api/v1/check-health', checkHealth);
+app.get('/api/v1/check-health', verifyAccessToken, checkHealth);
 app.use('/api/v1/auth', authRateLimiter(), authRouter);
 
 // Error Handling

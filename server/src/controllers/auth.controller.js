@@ -79,4 +79,22 @@ const loginUser = asyncHandler(async (req, res) => {
         );
 });
 
-export {signupUser, loginUser};
+const logoutUser = asyncHandler(async (req, res) => {
+
+    const user = await User.findById(req?.userId);
+
+    if (!user) {
+        throw new ApiError(statusCode.NOT_FOUND, 'User not found! Login first.');
+    }
+
+    user.refreshToken = null;
+    await user.save();
+
+    return res
+        .status(statusCode.OK)
+        .cookie('accessToken', cookieOptions)
+        .cookie('refreshToken', null, cookieOptions)
+        .json(new ApiResponse(statusCode.OK, 'User logged out successfully.'));
+})
+
+export {signupUser, loginUser, logoutUser};
