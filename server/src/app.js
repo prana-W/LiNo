@@ -6,7 +6,7 @@ import checkHealth from './controllers/checkHealth.controller.js';
 import {errorHandler, verifyAccessToken} from './middlewares/index.js';
 import {authRateLimiter} from './middlewares/rateLimiter.js';
 import morgan from 'morgan';
-import {lectureRouter} from "./routes/index.js";
+import {lectureRouter} from './routes/index.js';
 
 const app = express();
 

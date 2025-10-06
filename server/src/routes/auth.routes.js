@@ -1,6 +1,10 @@
 import {Router} from 'express';
-import {loginUser, logoutUser, signupUser} from '../controllers/auth.controller.js';
-import {verifyAccessToken} from "../middlewares/index.js";
+import {
+    loginUser,
+    logoutUser,
+    signupUser,
+} from '../controllers/auth.controller.js';
+import {verifyAccessToken} from '../middlewares/index.js';
 
 const authRouter = Router();
 

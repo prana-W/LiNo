@@ -1,6 +1,6 @@
 import verifyAccessToken from './middlewares/verifyAccessToken.middleware.js';
 import handlePacket from './controllers/handlePacket.controller.js';
-import {socket} from "../../../web-extension/socket/socket.js";
+import {socket} from '../../../web-extension/socket/socket.js';
 
 function registerSockets(io) {
     // Middleware to verify access token for each socket connection

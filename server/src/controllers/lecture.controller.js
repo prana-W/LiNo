@@ -1,11 +1,14 @@
-import {ApiError, ApiResponse, asyncHandler} from "../utility/index.js";
-import {Lecture} from "../models/index.js";
+import {ApiError, ApiResponse, asyncHandler} from '../utility/index.js';
+import {Lecture} from '../models/index.js';
 
 const getAllLectures = asyncHandler(async (req, res) => {
     const userId = req.userId;
 
     if (!userId) {
-        throw new ApiError(401, 'Unauthorized access. No userId found in request.');
+        throw new ApiError(
+            401,
+            'Unauthorized access. No userId found in request.'
+        );
     }
 
     // Pipeline, fetch all lectures of the user
@@ -16,9 +19,15 @@ const getAllLectures = asyncHandler(async (req, res) => {
     // Add a worker to manually flush/clean all these Redis cache once in 24 hours
     // Also invalidate and flush the cache when a new lecture is added/deleted/updated
 
-    const allLectures = await Lecture.find({user: userId}).select('-content -summarised_content -__v').sort({updatedAt: -1});
+    const allLectures = await Lecture.find({user: userId})
+        .select('-content -summarised_content -__v')
+        .sort({updatedAt: -1});
 
-    return res.json(new ApiResponse(200, 'All lectures fetched successfully.', {lectures: allLectures}));
-})
+    return res.json(
+        new ApiResponse(200, 'All lectures fetched successfully.', {
+            lectures: allLectures,
+        })
+    );
+});
 
 export {getAllLectures};
