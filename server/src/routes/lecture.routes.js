@@ -1,7 +1,8 @@
 import router from 'express';
+import {getAllLectures} from "../controllers/lecture.controller.js";
 
 const lectureRouter = router();
 
-router.route('/add-lecture').post();
+lectureRouter.route('/').get(getAllLectures);
 
 export default lectureRouter;
