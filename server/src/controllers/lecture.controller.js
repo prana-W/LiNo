@@ -1,5 +1,6 @@
 import {ApiError, ApiResponse, asyncHandler} from '../utility/index.js';
 import {Lecture} from '../models/index.js';
+import statusCode from '../constants/statusCode.js';
 
 const getAllLectures = asyncHandler(async (req, res) => {
     const userId = req.userId;
@@ -30,4 +31,36 @@ const getAllLectures = asyncHandler(async (req, res) => {
     );
 });
 
-export {getAllLectures};
+const getParticularLecture = asyncHandler(async (req, res) => {
+    const lectureId = req.params?.lectureId;
+
+    if (!lectureId) {
+        throw new ApiError(statusCode.BAD_REQUEST, 'Lecture ID not found!');
+    }
+
+    const lecture = await Lecture.findById(lectureId);
+
+    // Only allow lecture access, if user is the owner of the lecture, else not!
+    if (String(lecture?.user) !== req?.userId) {
+        throw new ApiError(
+            statusCode.UNAUTHORIZED,
+            'Unauthorized access. You are not allowed to access this lecture.'
+        );
+    }
+
+    if (!lecture) {
+        throw new ApiError(statusCode.NOT_FOUND, 'Lecture not found!');
+    }
+
+    return res
+        .status(statusCode.OK)
+        .json(
+            new ApiResponse(
+                statusCode.OK,
+                'Lecture fetched successfully!',
+                lecture
+            )
+        );
+});
+
+export {getAllLectures, getParticularLecture};
