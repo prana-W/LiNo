@@ -42,6 +42,11 @@ socket.on("connect", () => {
 });
 
 socket.on("connect_error", (error) => {
+
+    if (error?.message.includes('expired')) {
+        alert('Kindly login back into Lino!')
+    }
+
     console.error('Connection error:', error);
 });
 

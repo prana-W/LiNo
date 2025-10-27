@@ -12,4 +12,6 @@ const authRateLimiter = () =>
         standardHeaders: true,
     });
 
+// Todo: Add rateLimiters for all the APIs
+
 export {authRateLimiter};

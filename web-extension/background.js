@@ -23,7 +23,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         case "PACKET":
             handlePacket(message, sender, sendResponse);
             break;
-
     }
 
     return true;
