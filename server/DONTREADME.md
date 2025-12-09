@@ -37,6 +37,8 @@
 - We can use multiple AI models to do the work, one for refining, one for summarizing and one for important topics/flow of topics.
 - We can use a queue system to manage the load on the AI models, so that we don't overload them and also to ensure that the packets of string are processed in the order they are received.
 
+## Adding AI layer to categorise the Lecture/video accordingly - like education, gaming, etc.
+
 ## Redis caching for frequent DB queries like fetching public lectures information
 
 

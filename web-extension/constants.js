@@ -1,1 +1,1 @@
-export const SERVER_URL=' https://hemielytral-unstoppably-audrina.ngrok-free.dev';
+export const SERVER_URL='http://localhost:8000';

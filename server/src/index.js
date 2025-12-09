@@ -30,6 +30,6 @@ connectToRedis().then(() => {
     console.log(`✅ Redis connected: ${process.env.REDIS_URL}`);
 });
 
-connectToNgrok(port).then((listener) => {
-    console.log('Public Server URL:', listener.url());
-});
+// connectToNgrok(port).then((listener) => {
+//     console.log('Public Server URL:', listener.url());
+// });
