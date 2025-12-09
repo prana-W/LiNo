@@ -31,7 +31,7 @@ app.use(cookieParser());
 app.get('/', checkHealth);
 app.get('/api/v1/check-health', verifyAccessToken, checkHealth);
 app.use('/api/v1/auth', authRateLimiter(), authRouter);
-app.use('/api/v1/lecture', verifyAccessToken, lectureRouter); // Todo: Add and configure rate limiters for all
+app.use('/api/v1/lectures', verifyAccessToken, lectureRouter); // Todo: Add and configure rate limiters for all
 
 // Error Handling
 app.use(errorHandler());
