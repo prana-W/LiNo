@@ -1,5 +1,5 @@
 import {connectToSocket, disconnectFromSocket} from "./socket/socket.js";
-import {handlePacket, handleSuccessfulLogin} from "./controllers/messageHandler.controller.js";
+import {handlePacket, handleSuccessfulLogin, handleScreenshot} from "./controllers/messageHandler.controller.js";
 
 // Connect when on YouTube video
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
@@ -22,6 +22,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         case "PACKET":
             handlePacket(message, sender, sendResponse);
+            break;
+
+        case "SCREENSHOT_VISIBLE_TAB":
+            handleScreenshot(message, sender, sendResponse);
             break;
     }
 

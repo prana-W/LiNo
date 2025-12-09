@@ -11,6 +11,7 @@
     "cookies"
   ],
   "host_permissions": [
+    "<all_urls>",
     "https://www.youtube.com/watch*",
     "http://localhost:8000/*"
   ],

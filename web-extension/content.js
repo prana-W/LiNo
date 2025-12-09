@@ -120,12 +120,32 @@ window.addEventListener('unload', () => {
     const opt1 = document.createElement("div");
     opt1.className = "floating-blob-option option-1";
     opt1.innerHTML = "<span>1</span>";
-    opt1.title = "Option 1";
+    opt1.title = "Take screenshot & upload";
+
     opt1.addEventListener("click", (e) => {
         e.stopPropagation();
-        console.log("Option 1 clicked");
-        // TODO: add your logic (e.g., open popup / run action)
+
+        console.log('opt1 clicked!')
+
+        chrome.runtime.sendMessage(
+            { type: "SCREENSHOT_VISIBLE_TAB" },
+            (response) => {
+                if (chrome.runtime.lastError) {
+                    console.error("Message error:", chrome.runtime.lastError.message);
+                    return;
+                }
+
+                if (!response?.ok) {
+                    console.error("Screenshot/upload failed:", response?.error || response);
+                    return;
+                }
+
+                console.log("Screenshot uploaded successfully:", response);
+                // You can also show a small toast/notification in-page via DOM if you want
+            }
+        );
     });
+
 
     // Option 2
     const opt2 = document.createElement("div");
