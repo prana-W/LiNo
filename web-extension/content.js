@@ -95,4 +95,125 @@ window.addEventListener('unload', () => {
     captionObserver.disconnect();
     clearInterval(sendDataToWorker);
     clearInterval(timeOutForCaption);
-})
+});
+
+(() => {
+    // Avoid injecting multiple times
+    if (window.__floating_blob_extension_initialized__) return;
+    window.__floating_blob_extension_initialized__ = true;
+
+    // Create main blob container
+    const blob = document.createElement("div");
+    blob.id = "floating-blob-extension-root";
+
+    // Main icon
+    const mainIcon = document.createElement("div");
+    mainIcon.id = "floating-blob-extension-main-icon";
+    mainIcon.textContent = "◎"; // You can use any symbol/icon/emoji
+    blob.appendChild(mainIcon);
+
+    // Options container
+    const optionsContainer = document.createElement("div");
+    optionsContainer.id = "floating-blob-extension-options";
+
+    // Option 1
+    const opt1 = document.createElement("div");
+    opt1.className = "floating-blob-option option-1";
+    opt1.innerHTML = "<span>1</span>";
+    opt1.title = "Option 1";
+    opt1.addEventListener("click", (e) => {
+        e.stopPropagation();
+        console.log("Option 1 clicked");
+        // TODO: add your logic (e.g., open popup / run action)
+    });
+
+    // Option 2
+    const opt2 = document.createElement("div");
+    opt2.className = "floating-blob-option option-2";
+    opt2.innerHTML = "<span>2</span>";
+    opt2.title = "Option 2";
+    opt2.addEventListener("click", (e) => {
+        e.stopPropagation();
+        console.log("Option 2 clicked");
+        // TODO: your logic
+    });
+
+    // Option 3
+    const opt3 = document.createElement("div");
+    opt3.className = "floating-blob-option option-3";
+    opt3.innerHTML = "<span>3</span>";
+    opt3.title = "Option 3";
+    opt3.addEventListener("click", (e) => {
+        e.stopPropagation();
+        console.log("Option 3 clicked");
+        // TODO: your logic
+    });
+
+    optionsContainer.appendChild(opt1);
+    optionsContainer.appendChild(opt2);
+    optionsContainer.appendChild(opt3);
+    blob.appendChild(optionsContainer);
+
+    document.documentElement.appendChild(blob);
+
+    // ========== DRAG LOGIC ==========
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let initialLeft = 24; // default left
+    let initialBottom = 24; // default bottom
+
+    // Use left/top instead of bottom/right for easier math
+    blob.style.left = initialLeft + "px";
+    blob.style.bottom = initialBottom + "px";
+
+    const onMouseDown = (e) => {
+        // Only left click, ignore options clicks
+        if (e.button !== 0) return;
+
+        isDragging = true;
+        blob.classList.add("dragging");
+
+        // Current position
+        const rect = blob.getBoundingClientRect();
+        startX = e.clientX - rect.left;
+        startY = e.clientY - rect.top;
+
+        document.addEventListener("mousemove", onMouseMove);
+        document.addEventListener("mouseup", onMouseUp);
+
+        e.preventDefault();
+    };
+
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+    const onMouseMove = (e) => {
+        if (!isDragging) return;
+
+        const newLeft = e.clientX - startX;
+        const newTop = e.clientY - startY;
+
+        const blobRect = blob.getBoundingClientRect();
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+
+        const clampedLeft = clamp(newLeft, 0, vw - blobRect.width);
+        const clampedTop = clamp(newTop, 0, vh - blobRect.height);
+
+        blob.style.left = clampedLeft + "px";
+        blob.style.top = clampedTop + "px";
+        blob.style.bottom = "auto"; // so top takes effect
+        blob.style.right = "auto";
+    };
+
+    const onMouseUp = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        blob.classList.remove("dragging");
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+    };
+
+    // Attach listener to the blob itself
+    blob.addEventListener("mousedown", onMouseDown);
+})();

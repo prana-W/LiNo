@@ -1,0 +1,92 @@
+/* Prevent conflicts */
+#floating-blob-extension-root {
+    position: fixed;
+    inset: auto auto 24px 24px; /* bottom-left by default */
+    z-index: 2147483647; /* On top of everything */
+    width: 56px;
+    height: 56px;
+    border-radius: 9999px;
+    background: radial-gradient(circle at 30% 20%, #ffb347, #ff5f6d);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    user-select: none;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* While dragging */
+#floating-blob-extension-root.dragging {
+    cursor: grabbing;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+    transform: scale(1.03);
+}
+
+/* Main icon text */
+#floating-blob-extension-main-icon {
+    font-size: 20px;
+    color: white;
+    font-weight: 700;
+    pointer-events: none;
+}
+
+/* Container for options */
+#floating-blob-extension-options {
+    position: absolute;
+    inset: 0;
+    pointer-events: none; /* options disabled until hover */
+}
+
+/* Individual option circle */
+.floating-blob-option {
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    border-radius: 9999px;
+    background: #111827;
+    color: white;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+}
+
+/* Show options on hover */
+#floating-blob-extension-root:hover .floating-blob-option {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+/* Position each option (radial menu) */
+.floating-blob-option.option-1 {
+    transform: translate(0, -70px) scale(0.5);
+}
+#floating-blob-extension-root:hover .floating-blob-option.option-1 {
+    transform: translate(0, -70px) scale(1);
+}
+
+.floating-blob-option.option-2 {
+    transform: translate(60px, -40px) scale(0.5);
+}
+#floating-blob-extension-root:hover .floating-blob-option.option-2 {
+    transform: translate(60px, -40px) scale(1);
+}
+
+.floating-blob-option.option-3 {
+    transform: translate(60px, 40px) scale(0.5);
+}
+#floating-blob-extension-root:hover .floating-blob-option.option-3 {
+    transform: translate(60px, 40px) scale(1);
+}
+
+/* Simple tooltip style on options (optional) */
+.floating-blob-option span {
+    pointer-events: none;
+}
