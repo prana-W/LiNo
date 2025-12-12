@@ -138,3 +138,5 @@ vite.config.ts.timestamp-*
 
 /web-extension/test.js
 .idea/
+
+FUTURE.md

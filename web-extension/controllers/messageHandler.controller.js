@@ -86,56 +86,44 @@ const handleAccessTokenExpiry = async (message, sender, sendResponse) => {
 }
 
 const handleScreenshot = async (message, sender, sendResponse) => {
-    // Capture the currently visible tab in the window of the sender
-    const windowId = sender.tab?.windowId ?? undefined;
+    const windowId = sender.tab?.windowId;
 
-    chrome.tabs.captureVisibleTab(windowId, { format: "png" }, (dataUrl) => {
+    chrome.tabs.captureVisibleTab(windowId, { format: "png" }, async (dataUrl) => {
         if (chrome.runtime.lastError) {
-            console.error("Screenshot error:", chrome.runtime.lastError.message);
             sendResponse({ ok: false, error: chrome.runtime.lastError.message });
             return;
         }
 
-        // Now send this image to your server
-        (async () => {
-            try {
-                const res = await fetch(SERVER_URL + "/api/v1/screenshot", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        credentials: "include"
-                    },
-                    body: JSON.stringify({
-                        image: dataUrl,
-                        tabUrl: sender.tab?.url || null,
-                        capturedAt: new Date().toISOString()
-                    })
-                });
+        try {
+            // Convert base64 → Blob
+            const blob = await (await fetch(dataUrl)).blob();
 
-                const body = await res
-                    .json()
-                    .catch(() => null); // in case server doesn't return JSON
+            const formData = new FormData();
 
-                sendResponse({
-                    ok: res.ok,
-                    status: res.status,
-                    body
-                });
-            } catch (err) {
-                console.error("Upload error:", err);
-                sendResponse({
-                    ok: false,
-                    error: String(err)
-                });
-            }
-        })();
+            formData.append("screenshot", blob, `${sender.tab?.url}` || "screenshot.png");
 
-        // Keep the message channel open for async sendResponse
-        return true;
+            const res = await fetch(`${SERVER_URL}/api/v1/services/screenshot`, {
+                method: "POST",
+                body: formData,
+                credentials: "include",
+            });
+
+            const body = await res.json().catch(() => null);
+
+            sendResponse({
+                ok: res.ok,
+                status: res.status,
+                body,
+            });
+        } catch (err) {
+            sendResponse({
+                ok: false,
+                error: err.message,
+            });
+        }
     });
 
-    // Important: return true here as well to indicate async response
-    return true;
+    return true; // keep channel open
+};
 
-}
 export {handleSuccessfulLogin, handlePacket, handleScreenshot};

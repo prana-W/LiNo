@@ -7,6 +7,7 @@ import {errorHandler, verifyAccessToken} from './middlewares/index.js';
 import {authRateLimiter} from './middlewares/rateLimiter.js';
 import morgan from 'morgan';
 import {lectureRouter} from './routes/index.js';
+import serviceRouter from "./routes/services.routes.js";
 
 const app = express();
 
@@ -20,7 +21,7 @@ app.use(
     })
 );
 
-app.use(express.json());
+app.use(express.json({limit: '100mb'}));
 
 app.use(express.urlencoded({extended: true}));
 app.use(express.static('public'));
@@ -29,9 +30,11 @@ app.use(cookieParser());
 // API Routes
 
 app.get('/', checkHealth);
-app.get('/api/v1/check-health', verifyAccessToken, checkHealth);
+app.get('/api/v1/check-health', checkHealth);
 app.use('/api/v1/auth', authRateLimiter(), authRouter);
 app.use('/api/v1/lectures', verifyAccessToken, lectureRouter); // Todo: Add and configure rate limiters for all
+
+app.use('/api/v1/services', verifyAccessToken, serviceRouter);
 
 // Error Handling
 app.use(errorHandler());
