@@ -209,11 +209,11 @@ const NotesDashboard = () => {
                                                 {notes.name || "Untitled Notes"}
                                             </CardTitle>
                                             <CardDescription className="mt-1 text-xs">
-                                                {notes.playlist?.name
-                                                    ? `Playlist: ${notes.playlist.name}`
-                                                    : notes.playlist
-                                                        ? `Playlist: ${notes.playlist}`
-                                                        : "No playlist"}
+                                                {notes.collection?.name
+                                                    ? `Collection: ${notes.collection.name}`
+                                                    : notes.collection
+                                                        ? `Collection: ${notes.collection}`
+                                                        : "No collection"}
                                             </CardDescription>
                                         </div>
                                         {notes.isFavourite && (
@@ -369,11 +369,11 @@ const NotesDashboard = () => {
                                     )}
 
                                     <section className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-                                        {selectedNotes.playlist && (
+                                        {selectedNotes.collection && (
                                             <span>
-                                                Playlist:{" "}
-                                                {selectedNotes.playlist.name ||
-                                                    selectedNotes.playlist}
+                                                Collection:{" "}
+                                                {selectedNotes.collection.name ||
+                                                    selectedNotes.collection}
                                             </span>
                                         )}
                                         {selectedNotes.user && (

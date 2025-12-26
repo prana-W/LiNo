@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const playlistSchema = new mongoose.Schema(
+const collectionSchema = new mongoose.Schema(
     {
         name: {
             type: String,
@@ -18,6 +18,6 @@ const playlistSchema = new mongoose.Schema(
     }
 );
 
-const Playlist = mongoose.model('Playlist', playlistSchema);
+const Collection = mongoose.model('Collection', collectionSchema);
 
-export default Playlist;
+export default Collection;

@@ -29,10 +29,10 @@ const notesSchema = new mongoose.Schema(
             required: true,
             index: true,
         },
-        playlist: {
+        collection: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Playlist',
-            // default: 'Recently-Added', // add the notesId for "Recently Added" playlist by default
+            ref: 'Collection',
+            // default: 'Recently-Added', // add the notesId for "Recently Added" collection by default
         },
         isFavourite: {
             type: Boolean,
