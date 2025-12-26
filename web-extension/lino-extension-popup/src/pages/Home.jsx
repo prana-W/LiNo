@@ -6,7 +6,7 @@ export default function Home() {
         <div className="p-6 flex flex-col items-center text-center">
             <h1 className="text-3xl font-bold mb-4">Welcome to LiNo</h1>
             <p className="text-gray-600 dark:text-gray-300 max-w-md mb-6">
-                Lino helps you seamlessly capture, organize, and manage your online lectures notes.
+                Lino helps you seamlessly capture, organize, and manage your online notes notes.
                 Get started by logging in or creating a new account.
             </p>
 

@@ -1,6 +1,6 @@
 # LiNo - LIve NOtes
 
-**LiNo** is a browser extension that automatically tracks and records YouTube captions/subtitles, converting them into **structured, easy-to-access notes**. It is perfect for lectures, tutorials, or any video content, eliminating the need to pause and write repeatedly.
+**LiNo** is a browser extension that automatically tracks and records YouTube captions/subtitles, converting them into **structured, easy-to-access notes**. It is perfect for notes, tutorials, or any video content, eliminating the need to pause and write repeatedly.
 
 ---
 

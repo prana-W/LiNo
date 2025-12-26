@@ -1,5 +1,5 @@
 import {createClient} from 'redis';
-import {Lecture} from '../models/index.js';
+import {Notes} from '../models/index.js';
 import {connector, REDIS_DB_LIST_LIMIT} from '../constants/miscellaneous.js';
 import asyncHandler from './utility/asyncHandler.redis.js';
 
@@ -53,34 +53,34 @@ const flushData = asyncHandler(async (key) => {
     const userId = key.split(connector)[0];
     const videoUrl = key.split(connector)[1];
 
-    const lecture = await Lecture.findOne({
+    const notes = await Notes.findOne({
         $and: [{user: userId}, {videoUrl: videoUrl}],
     });
 
-    // Todo: How to add the meta-data about the lecture
+    // Todo: How to add the meta-data about the notes
 
-    if (!lecture) {
+    if (!notes) {
         const metaData = await getMetaData(key);
 
         const data = {
-            name: metaData?.name || 'New Lecture',
+            name: metaData?.name || 'New Notes',
             videoUrl: videoUrl,
             user: userId,
             description: metaData?.description || '',
             content: content || '',
         };
 
-        const res = await Lecture.create(data);
+        const res = await Notes.create(data);
 
         if (!res) {
             throw new Error(
-                'There was an error in creating the lecture document'
+                'There was an error in creating the notes document'
             );
             //Todo: handle this error
         }
     } else {
-        lecture.content = lecture.content + content;
-        await lecture.save();
+        notes.content = notes.content + content;
+        await notes.save();
     }
 
     console.log('Data flushed from Redis to MongoDB');

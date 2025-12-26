@@ -3,7 +3,7 @@
 - Client sends packets of strings, along with timestamps, video url and accessToken in auth.
 - Validate accessToken, if not valid, reject the request and ask the user to provide accessToken again.
 - Validation to the string (trim, cleanup etc)
-- Add the string to the DB in the lecture using the video base url as identifier, along with timestamps.
+- Add the string to the DB in the notes using the video base url as identifier, along with timestamps.
 - After DB query is successfull, emit the changes to all the clients in the room (by username) except the original sender.
 - After the emission is done, send an acknowledgement to the original sender that the message was sent successfully, which prompts the packet of string to be deleted from the localStorage of the user.
 - The cycle repeats again.
@@ -16,7 +16,7 @@
 
 # Client side Socket (app)
 
-- Fetch all the existing string for that particular lecture and render on the page.
+- Fetch all the existing string for that particular notes and render on the page.
 - Send accessToken to the server.
 - On validaton, server joins the user to a room using the username as identifier.
 - On invalidation, server asks the user to provide accessToken again, same process as above.

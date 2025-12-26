@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 
-function LectureSkeletonCard() {
+function NotesSkeletonCard() {
     return (
         <Card className="flex flex-col justify-between">
             <CardHeader>
@@ -33,32 +33,32 @@ function LectureSkeletonCard() {
     );
 }
 
-const LectureDashboard = () => {
-    const [lectures, setLectures] = useState([]);
+const NotesDashboard = () => {
+    const [notes, setNotes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
     // details state
-    const [selectedLecture, setSelectedLecture] = useState(null);
+    const [selectedNotes, setSelectedNotes] = useState(null);
     const [detailLoading, setDetailLoading] = useState(false);
     const [detailError, setDetailError] = useState("");
 
-    // Fetch all lectures
-    const fetchLectures = async () => {
+    // Fetch all notes
+    const fetchNotes = async () => {
         try {
             setLoading(true);
             setError("");
 
-            const res = await api.get("/lectures");
+            const res = await api.get("/notes");
 
-            // backend: { data: [...] } or { data: { lectures: [...] } }
+            // backend: { data: [...] } or { data: { notes: [...] } }
             const data = res.data.data;
-            const list = Array.isArray(data) ? data : data.lectures || [];
-            setLectures(list);
+            const list = Array.isArray(data) ? data : data.notes || [];
+            setNotes(list);
         } catch (err) {
             console.error(err);
             setError(
-                err?.response?.data?.message || "Failed to load lectures. Try again."
+                err?.response?.data?.message || "Failed to load notes. Try again."
             );
         } finally {
             setLoading(false);
@@ -66,37 +66,37 @@ const LectureDashboard = () => {
     };
 
     useEffect(() => {
-        fetchLectures();
+        fetchNotes();
     }, []);
 
-    const handleOpenVideo = (lecture, e) => {
+    const handleOpenVideo = (notes, e) => {
         // avoid triggering card click
         if (e) e.stopPropagation();
-        if (!lecture?.videoUrl) return;
-        window.open(lecture.videoUrl, "_blank", "noopener,noreferrer");
+        if (!notes?.videoUrl) return;
+        window.open(notes.videoUrl, "_blank", "noopener,noreferrer");
     };
 
-    const handleToggleFavourite = async (lectureId, e) => {
+    const handleToggleFavourite = async (notesId, e) => {
         // avoid triggering card click
         if (e) e.stopPropagation();
 
         // Optimistic update
-        setLectures((prev) =>
+        setNotes((prev) =>
             prev.map((lec) =>
-                lec._id === lectureId
+                lec._id === notesId
                     ? { ...lec, isFavourite: !lec.isFavourite }
                     : lec
             )
         );
 
         try {
-            await api.post("/lectures/toggle-favourite", { lectureId });
+            await api.post("/notes/toggle-favourite", { notesId });
         } catch (err) {
             console.error(err);
             // Revert on error
-            setLectures((prev) =>
+            setNotes((prev) =>
                 prev.map((lec) =>
-                    lec._id === lectureId
+                    lec._id === notesId
                         ? { ...lec, isFavourite: !lec.isFavourite }
                         : lec
                 )
@@ -104,33 +104,33 @@ const LectureDashboard = () => {
         }
     };
 
-    const fetchLectureDetails = async (lectureId) => {
-        if (!lectureId) return;
+    const fetchNotesDetails = async (notesId) => {
+        if (!notesId) return;
         try {
             setDetailLoading(true);
             setDetailError("");
 
-            const res = await api.get(`/lectures/${lectureId}`);
+            const res = await api.get(`/notes/${notesId}`);
 
-            // backend could respond as { data: lecture } or { lecture } or lecture itself
+            // backend could respond as { data: notes } or { notes } or notes itself
             const payload = res.data;
-            const lecture =
-                payload.data || payload.lecture || payload;
+            const notes =
+                payload.data || payload.notes || payload;
 
-            setSelectedLecture(lecture);
+            setSelectedNotes(notes);
         } catch (err) {
             console.error(err);
             setDetailError(
                 err?.response?.data?.message ||
-                "Failed to load lecture details. Please try again."
+                "Failed to load notes details. Please try again."
             );
         } finally {
             setDetailLoading(false);
         }
     };
 
-    const handleSelectLecture = (lectureId) => {
-        fetchLectureDetails(lectureId);
+    const handleSelectNotes = (notesId) => {
+        fetchNotesDetails(notesId);
     };
 
     const formatDate = (dateString) => {
@@ -151,15 +151,15 @@ const LectureDashboard = () => {
                 <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
                     <div>
                         <h1 className="text-3xl font-semibold tracking-tight">
-                            Lectures Dashboard
+                            Notes Dashboard
                         </h1>
                         <p className="text-sm text-muted-foreground">
-                            All your lectures in one place. Click a lecture to view full
+                            All your notes in one place. Click a notes to view full
                             details, or watch and mark favourites.
                         </p>
                     </div>
 
-                    <Button variant="outline" size="sm" onClick={fetchLectures}>
+                    <Button variant="outline" size="sm" onClick={fetchNotes}>
                         Refresh
                     </Button>
                 </div>
@@ -175,30 +175,30 @@ const LectureDashboard = () => {
                 {loading ? (
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {Array.from({ length: 6 }).map((_, idx) => (
-                            <LectureSkeletonCard key={idx} />
+                            <NotesSkeletonCard key={idx} />
                         ))}
                     </div>
-                ) : lectures.length === 0 ? (
+                ) : notes.length === 0 ? (
                     // Empty state
                     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-10 text-center">
-                        <p className="text-lg font-medium">No lectures found</p>
+                        <p className="text-lg font-medium">No notes found</p>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            Once you add lectures from the backend, they will appear here.
+                            Once you add notes from the backend, they will appear here.
                         </p>
                     </div>
                 ) : (
-                    // Lectures grid
+                    // Notes grid
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {lectures.map((lecture) => (
+                        {notes.map((notes) => (
                             <Card
-                                key={lecture._id}
+                                key={notes._id}
                                 className="flex cursor-pointer flex-col justify-between transition hover:shadow-md"
-                                onClick={() => handleSelectLecture(lecture._id)}
+                                onClick={() => handleSelectNotes(notes._id)}
                                 role="button"
                                 tabIndex={0}
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter") {
-                                        handleSelectLecture(lecture._id);
+                                        handleSelectNotes(notes._id);
                                     }
                                 }}
                             >
@@ -206,41 +206,41 @@ const LectureDashboard = () => {
                                     <div className="flex items-start justify-between gap-2">
                                         <div>
                                             <CardTitle className="line-clamp-1">
-                                                {lecture.name || "Untitled Lecture"}
+                                                {notes.name || "Untitled Notes"}
                                             </CardTitle>
                                             <CardDescription className="mt-1 text-xs">
-                                                {lecture.playlist?.name
-                                                    ? `Playlist: ${lecture.playlist.name}`
-                                                    : lecture.playlist
-                                                        ? `Playlist: ${lecture.playlist}`
+                                                {notes.playlist?.name
+                                                    ? `Playlist: ${notes.playlist.name}`
+                                                    : notes.playlist
+                                                        ? `Playlist: ${notes.playlist}`
                                                         : "No playlist"}
                                             </CardDescription>
                                         </div>
-                                        {lecture.isFavourite && (
+                                        {notes.isFavourite && (
                                             <Badge variant="default" className="shrink-0">
                                                 ★ Favourite
                                             </Badge>
                                         )}
                                     </div>
-                                    {lecture.createdAt && (
+                                    {notes.createdAt && (
                                         <p className="mt-2 text-xs text-muted-foreground">
-                                            Added on {formatDate(lecture.createdAt)}
+                                            Added on {formatDate(notes.createdAt)}
                                         </p>
                                     )}
                                 </CardHeader>
 
                                 <CardContent className="space-y-2 text-sm">
-                                    {lecture.description && (
+                                    {notes.description && (
                                         <p className="line-clamp-2 text-muted-foreground">
-                                            {lecture.description}
+                                            {notes.description}
                                         </p>
                                     )}
 
-                                    {lecture.summarised_content && (
+                                    {notes.summarised_content && (
                                         <div className="mt-2 rounded-md bg-muted/60 p-2 text-xs">
                                             <p className="font-medium">Summary</p>
                                             <p className="mt-1 line-clamp-3 text-muted-foreground">
-                                                {lecture.summarised_content}
+                                                {notes.summarised_content}
                                             </p>
                                         </div>
                                     )}
@@ -250,20 +250,20 @@ const LectureDashboard = () => {
                                     <Button
                                         size="sm"
                                         className="flex-1"
-                                        onClick={(e) => handleOpenVideo(lecture, e)}
-                                        disabled={!lecture.videoUrl}
+                                        onClick={(e) => handleOpenVideo(notes, e)}
+                                        disabled={!notes.videoUrl}
                                     >
                                         Watch video
                                     </Button>
 
                                     <Button
                                         size="sm"
-                                        variant={lecture.isFavourite ? "default" : "outline"}
+                                        variant={notes.isFavourite ? "default" : "outline"}
                                         onClick={(e) =>
-                                            handleToggleFavourite(lecture._id, e)
+                                            handleToggleFavourite(notes._id, e)
                                         }
                                     >
-                                        {lecture.isFavourite ? "Unfavourite" : "Favourite"}
+                                        {notes.isFavourite ? "Unfavourite" : "Favourite"}
                                     </Button>
                                 </CardFooter>
                             </Card>
@@ -271,7 +271,7 @@ const LectureDashboard = () => {
                     </div>
                 )}
 
-                {/* Selected lecture details */}
+                {/* Selected notes details */}
                 <div className="mt-8">
                     {detailLoading && (
                         <div className="space-y-3">
@@ -296,103 +296,103 @@ const LectureDashboard = () => {
                         </div>
                     )}
 
-                    {selectedLecture && !detailLoading && (
+                    {selectedNotes && !detailLoading && (
                         <div>
                             <h2 className="mb-3 text-xl font-semibold tracking-tight">
-                                Lecture details
+                                Notes details
                             </h2>
                             <Card className="border">
                                 <CardHeader>
                                     <div className="flex flex-wrap items-start justify-between gap-3">
                                         <div>
                                             <CardTitle>
-                                                {selectedLecture.name || "Untitled Lecture"}
+                                                {selectedNotes.name || "Untitled Notes"}
                                             </CardTitle>
-                                            {selectedLecture.description && (
+                                            {selectedNotes.description && (
                                                 <CardDescription className="mt-1">
-                                                    {selectedLecture.description}
+                                                    {selectedNotes.description}
                                                 </CardDescription>
                                             )}
                                         </div>
-                                        {selectedLecture.isFavourite && (
+                                        {selectedNotes.isFavourite && (
                                             <Badge>★ Favourite</Badge>
                                         )}
                                     </div>
-                                    {selectedLecture.createdAt && (
+                                    {selectedNotes.createdAt && (
                                         <p className="mt-2 text-xs text-muted-foreground">
                                             Created on{" "}
-                                            {formatDate(selectedLecture.createdAt)}
+                                            {formatDate(selectedNotes.createdAt)}
                                         </p>
                                     )}
-                                    {selectedLecture.updatedAt && (
+                                    {selectedNotes.updatedAt && (
                                         <p className="text-xs text-muted-foreground">
                                             Last updated{" "}
-                                            {formatDate(selectedLecture.updatedAt)}
+                                            {formatDate(selectedNotes.updatedAt)}
                                         </p>
                                     )}
-                                    {selectedLecture.videoUrl && (
+                                    {selectedNotes.videoUrl && (
                                         <p className="mt-2 text-xs text-muted-foreground">
                                             Video URL:{" "}
                                             <a
-                                                href={selectedLecture.videoUrl}
+                                                href={selectedNotes.videoUrl}
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 className="underline"
                                             >
-                                                {selectedLecture.videoUrl}
+                                                {selectedNotes.videoUrl}
                                             </a>
                                         </p>
                                     )}
                                 </CardHeader>
 
                                 <CardContent className="space-y-6 text-sm">
-                                    {selectedLecture.content && (
+                                    {selectedNotes.content && (
                                         <section>
                                             <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                                                 Full content
                                             </p>
                                             <p className="whitespace-pre-wrap">
-                                                {selectedLecture.content}
+                                                {selectedNotes.content}
                                             </p>
                                         </section>
                                     )}
 
-                                    {selectedLecture.summarised_content && (
+                                    {selectedNotes.summarised_content && (
                                         <section>
                                             <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                                                 Summary
                                             </p>
                                             <p className="whitespace-pre-wrap text-muted-foreground">
-                                                {selectedLecture.summarised_content}
+                                                {selectedNotes.summarised_content}
                                             </p>
                                         </section>
                                     )}
 
                                     <section className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-                                        {selectedLecture.playlist && (
+                                        {selectedNotes.playlist && (
                                             <span>
                                                 Playlist:{" "}
-                                                {selectedLecture.playlist.name ||
-                                                    selectedLecture.playlist}
+                                                {selectedNotes.playlist.name ||
+                                                    selectedNotes.playlist}
                                             </span>
                                         )}
-                                        {selectedLecture.user && (
+                                        {selectedNotes.user && (
                                             <span>
                                                 Author:{" "}
-                                                {selectedLecture.user.name ||
-                                                    selectedLecture.user.email ||
-                                                    selectedLecture.user}
+                                                {selectedNotes.user.name ||
+                                                    selectedNotes.user.email ||
+                                                    selectedNotes.user}
                                             </span>
                                         )}
                                     </section>
                                 </CardContent>
 
                                 <CardFooter className="flex flex-wrap gap-2">
-                                    {selectedLecture.videoUrl && (
+                                    {selectedNotes.videoUrl && (
                                         <Button
                                             size="sm"
                                             onClick={() =>
-                                                handleOpenVideo(selectedLecture)
+                                                handleOpenVideo(selectedNotes)
                                             }
                                         >
                                             Watch video
@@ -401,18 +401,18 @@ const LectureDashboard = () => {
                                     <Button
                                         size="sm"
                                         variant={
-                                            selectedLecture.isFavourite
+                                            selectedNotes.isFavourite
                                                 ? "default"
                                                 : "outline"
                                         }
                                         onClick={(e) =>
                                             handleToggleFavourite(
-                                                selectedLecture._id,
+                                                selectedNotes._id,
                                                 e
                                             )
                                         }
                                     >
-                                        {selectedLecture.isFavourite
+                                        {selectedNotes.isFavourite
                                             ? "Unfavourite"
                                             : "Favourite"}
                                     </Button>
@@ -426,4 +426,4 @@ const LectureDashboard = () => {
     );
 };
 
-export default LectureDashboard;
+export default NotesDashboard;

@@ -1,5 +1,5 @@
 import userRouter from './auth.routes.js';
-import lectureRouter from './lecture.routes.js';
+import notesRouter from './notes.routes.js';
 import playlistRouter from './playlist.routes.js';
 
-export {userRouter, lectureRouter, playlistRouter};
+export {userRouter, notesRouter, playlistRouter};

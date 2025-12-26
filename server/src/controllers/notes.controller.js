@@ -1,0 +1,66 @@
+import {ApiError, ApiResponse, asyncHandler} from '../utility/index.js';
+import {Notes} from '../models/index.js';
+import statusCode from '../constants/statusCode.js';
+
+const getAllNotes = asyncHandler(async (req, res) => {
+    const userId = req.userId;
+
+    if (!userId) {
+        throw new ApiError(
+            401,
+            'Unauthorized access. No userId found in request.'
+        );
+    }
+
+    // Pipeline, fetch all notes of the user
+    // Only add the necessary details of it - name, description, createdAt, updatedAt, videoUrl, isFavourite, playlist
+    // Sort using updatedAt
+    // Populate playlist name and id
+    // Cache everything in Redis temporarily for faster loading speed/fetch
+    // Add a worker to manually flush/clean all these Redis cache once in 24 hours
+    // Also invalidate and flush the cache when a new notes is added/deleted/updated
+
+    const allNotes = await Notes.find({user: userId})
+        .select('-content -summarised_content -__v')
+        .sort({updatedAt: -1});
+
+    return res.json(
+        new ApiResponse(200, 'All notes fetched successfully.', {
+            notes: allNotes,
+        })
+    );
+});
+
+const getParticularNotes = asyncHandler(async (req, res) => {
+    const notesId = req.params?.notesId;
+
+    if (!notesId) {
+        throw new ApiError(statusCode.BAD_REQUEST, 'Notes ID not found!');
+    }
+
+    const notes = await Notes.findById(notesId);
+
+    // Only allow notes access, if user is the owner of the notes, else not!
+    if (String(notes?.user) !== req?.userId) {
+        throw new ApiError(
+            statusCode.UNAUTHORIZED,
+            'Unauthorized access. You are not allowed to access this notes.'
+        );
+    }
+
+    if (!notes) {
+        throw new ApiError(statusCode.NOT_FOUND, 'Notes not found!');
+    }
+
+    return res
+        .status(statusCode.OK)
+        .json(
+            new ApiResponse(
+                statusCode.OK,
+                'Notes fetched successfully!',
+                notes
+            )
+        );
+});
+
+export {getAllNotes, getParticularNotes};
