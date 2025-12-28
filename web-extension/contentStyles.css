@@ -1,82 +1,132 @@
-/* Main blob */
-#floating-blob-extension-root {
+/* Floating textarea container */
+#floating-textarea-container {
     position: fixed;
-    inset: auto auto 24px 24px; /* bottom-left by default */
-    z-index: 2147483647;
-    width: 56px;
-    height: 56px;
-    border-radius: 9999px;
-    background: radial-gradient(circle at 30% 20%, #ffb347, #ff5f6d);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2147483646;
+    width: 400px;
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    border-radius: 16px;
+    box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.5),
+            0 8px 24px rgba(0, 0, 0, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    flex-direction: column;
+    overflow: hidden;
+    animation: fadeInScale 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Textarea header */
+#floating-textarea-header {
+    padding: 16px 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
     cursor: grab;
     user-select: none;
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-#floating-blob-extension-root.dragging {
+#floating-textarea-header:active {
     cursor: grabbing;
-    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
-    transform: scale(1.03);
 }
 
-/* Main icon text */
-#floating-blob-extension-main-icon {
+#floating-textarea-header span {
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+#close-textarea-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
     font-size: 20px;
-    color: white;
-    font-weight: 700;
-    pointer-events: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    line-height: 1;
 }
 
-/* Options container */
-#floating-blob-extension-options {
-    position: absolute;
-    inset: 0;
-    pointer-events: none; /* interactions only on children */
+#close-textarea-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
 }
 
-/* Individual option circle – ALWAYS visible now */
-.floating-blob-option {
-    position: absolute;
-    width: 36px;
-    height: 36px;
-    border-radius: 9999px;
-    background: #111827;
+/* Textarea */
+#floating-textarea {
+    width: 100%;
+    min-height: 200px;
+    max-height: 400px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border: none;
     color: white;
-    font-size: 12px;
+    font-size: 14px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    resize: vertical;
+    outline: none;
+    box-sizing: border-box;
+}
+
+#floating-textarea::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+#floating-textarea:focus {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Send button */
+#floating-textarea-send {
+    margin: 16px 20px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow:
+            0 4px 12px rgba(102, 126, 234, 0.4),
+            0 2px 6px rgba(0, 0, 0, 0.2);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+#floating-textarea-send:hover {
+    transform: translateY(-2px);
+    box-shadow:
+            0 6px 20px rgba(102, 126, 234, 0.5),
+            0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+#floating-textarea-send:active {
+    transform: translateY(0);
+    box-shadow:
+            0 2px 8px rgba(102, 126, 234, 0.4),
+            0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+#floating-textarea-container {
     display: flex;
-    align-items: center;
-    justify-content: center;
-
-    /* visible by default */
-    opacity: 1;
-    transform: scale(1);
-    transition: transform 0.2s ease; /* optional subtle pop on hover if you want */
-
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-    pointer-events: auto;
 }
 
-/* Optional: slight grow when hovering each option */
-.floating-blob-option:hover {
-    transform: scale(1.08);
-}
 
-/* Radial positions */
-.floating-blob-option.option-1 {
-    transform: translate(0, -70px);
-}
-
-.floating-blob-option.option-2 {
-    transform: translate(60px, -40px);
-}
-
-.floating-blob-option.option-3 {
-    transform: translate(60px, 40px);
-}
-
-.floating-blob-option span {
-    pointer-events: none;
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
 }

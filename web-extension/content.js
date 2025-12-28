@@ -103,181 +103,153 @@ window.addEventListener('unload', () => {
  */
 
 (() => {
-    // Avoid injecting multiple times
+    // Prevent double injection
     if (window.__floating_blob_extension_initialized__) return;
     window.__floating_blob_extension_initialized__ = true;
 
-    // Create main blob container
+    /* ================= ROOT BLOB ================= */
+
     const blob = document.createElement("div");
     blob.id = "floating-blob-extension-root";
-
-    // Hide by default
     blob.style.display = "none";
+    blob.style.position = "fixed";
+    blob.style.zIndex = "2147483645";
+    blob.style.left = "24px";
+    blob.style.bottom = "24px";
 
-    // Main icon
     const mainIcon = document.createElement("div");
     mainIcon.id = "floating-blob-extension-main-icon";
-    mainIcon.textContent = "◎"; // You can use any symbol/icon/emoji
+    mainIcon.textContent = "◎";
     blob.appendChild(mainIcon);
 
-    // Options container
     const optionsContainer = document.createElement("div");
     optionsContainer.id = "floating-blob-extension-options";
 
-    // Option 1
-    const opt1 = document.createElement("div");
-    opt1.className = "floating-blob-option option-1";
-    opt1.innerHTML = "<span>1</span>";
-    opt1.title = "Take screenshot & upload";
+    /* ================= TEXTAREA ================= */
 
-    opt1.addEventListener("click", (e) => {
-        e.stopPropagation();
+    const textAreaContainer = document.createElement("div");
+    textAreaContainer.id = "floating-textarea-container";
+    textAreaContainer.style.display = "none"; // hidden initially
+    textAreaContainer.style.left = "50%";
+    textAreaContainer.style.top = "50%";
 
-        console.log('opt1 clicked!')
+    const textAreaHeader = document.createElement("div");
+    textAreaHeader.id = "floating-textarea-header";
+    textAreaHeader.innerHTML = `<span>Notes</span><button id="close-textarea-btn">✕</button>`;
 
-        chrome.runtime.sendMessage(
-            { type: "SCREENSHOT_CAPTURE_TAB",
+    const textArea = document.createElement("textarea");
+    textArea.id = "floating-textarea";
+    textArea.placeholder = "Write your notes here...";
 
-                payload: {
-                timeStamp:  `${document.querySelector('.ytp-time-current').innerText}/${document.querySelector('.ytp-time-duration').innerText}`,
-                }
+    const sendButton = document.createElement("button");
+    sendButton.id = "floating-textarea-send";
+    sendButton.textContent = "Send";
 
-            },
-            (response) => {
-                if (chrome.runtime.lastError) {
-                    console.error("Message error:", chrome.runtime.lastError.message);
-                    return;
-                }
+    textAreaContainer.append(textAreaHeader, textArea, sendButton);
+    document.body.appendChild(textAreaContainer);
 
-                if (!response?.ok) {
-                    console.error("Screenshot/upload failed:", response?.error || response);
-                    return;
-                }
+    let isTextAreaVisible = false;
 
-                console.log("Screenshot uploaded successfully:", response);
-                // You can also show a small toast/notification in-page via DOM if you want
-            }
-        );
-    });
+    const sendText = () => {
+        const text = textArea.value.trim();
+        if (!text) return;
 
-
-    // Option 2
-    const opt2 = document.createElement("div");
-    opt2.className = "floating-blob-option option-2";
-    opt2.innerHTML = "<span>2</span>";
-    opt2.title = "Option 2";
-    opt2.addEventListener("click", (e) => {
-        e.stopPropagation();
-        console.log("Option 2 clicked");
+        const cur = document.querySelector(".ytp-time-current")?.innerText || "0:00";
+        const dur = document.querySelector(".ytp-time-duration")?.innerText || "0:00";
 
         chrome.runtime.sendMessage(
-            { type: "TEXT_SEND_TAB" },
-            (response) => {
-                if (chrome.runtime.lastError) {
-                    console.error("Message error:", chrome.runtime.lastError.message);
-                    return;
-                }
-
-                if (!response?.ok) {
-                    console.error("Error in sending notes:", response?.error || response);
-                    return;
-                }
-
-                console.log("Notes added successfully!", response);
-                // You can also show a small toast/notification in-page via DOM if you want
+            { type: "TEXT_SEND_TAB", payload: { content: text, timeStamp: `${cur}/${dur}` } },
+            (res) => {
+                if (!res?.ok) console.error(res);
+                else textArea.value = "";
             }
         );
-    });
+    };
 
-    // Option 3
-    // const opt3 = document.createElement("div");
-    // opt3.className = "floating-blob-option option-3";
-    // opt3.innerHTML = "<span>3</span>";
-    // opt3.title = "Option 3";
-    // opt3.addEventListener("click", (e) => {
-    //     e.stopPropagation();
-    //     console.log("Option 3 clicked");
-    //     // TODO: your logic
-    // });
+    sendButton.addEventListener("click", sendText);
 
-    optionsContainer.appendChild(opt1);
-    optionsContainer.appendChild(opt2);
-    // optionsContainer.appendChild(opt3);
-    blob.appendChild(optionsContainer);
-
-    document.documentElement.appendChild(blob);
-
-    // ========== KEYBOARD SHORTCUT TOGGLE ==========
-    let isVisible = false;
-
-    document.addEventListener("keydown", (e) => {
-        // Ctrl+Shift+Y (or Cmd+Shift+Y on Mac)
-        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'Y') {
+    textArea.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
-            isVisible = !isVisible;
-            blob.style.display = isVisible ? "block" : "none";
-            console.log("Floating blob toggled:", isVisible ? "visible" : "hidden");
+            sendText();
         }
     });
 
-    // ========== DRAG LOGIC ==========
-    let isDragging = false;
-    let startX = 0;
-    let startY = 0;
-    let initialLeft = 24; // default left
-    let initialBottom = 24; // default bottom
+    textAreaHeader.querySelector("#close-textarea-btn").addEventListener("click", () => {
+        isTextAreaVisible = false;
+        textAreaContainer.style.display = "none";
+    });
 
-    // Use left/top instead of bottom/right for easier math
-    blob.style.left = initialLeft + "px";
-    blob.style.bottom = initialBottom + "px";
+    /* ================= OPTION BUTTONS ================= */
 
-    const onMouseDown = (e) => {
-        // Only left click, ignore options clicks
+    const opt1 = document.createElement("div");
+    opt1.className = "floating-blob-option option-1";
+    opt1.innerHTML = "<span>1</span>";
+    opt1.title = "Take screenshot";
+
+    opt1.addEventListener("click", () => {
+        const cur = document.querySelector(".ytp-time-current")?.innerText || "0:00";
+        const dur = document.querySelector(".ytp-time-duration")?.innerText || "0:00";
+
+        chrome.runtime.sendMessage({
+            type: "SCREENSHOT_CAPTURE_TAB",
+            payload: { timeStamp: `${cur}/${dur}` }
+        });
+    });
+
+    const opt2 = document.createElement("div");
+    opt2.className = "floating-blob-option option-2";
+    opt2.innerHTML = "<span>2</span>";
+    opt2.title = "Toggle Notes";
+
+    opt2.addEventListener("click", () => {
+        isTextAreaVisible = !isTextAreaVisible;
+        textAreaContainer.style.display = isTextAreaVisible ? "flex" : "none";
+        if (isTextAreaVisible) setTimeout(() => textArea.focus(), 50);
+    });
+
+    optionsContainer.append(opt1, opt2);
+    blob.appendChild(optionsContainer);
+    document.body.appendChild(blob);
+
+    /* ================= SHORTCUT ================= */
+
+    let blobVisible = false;
+
+    document.addEventListener("keydown", (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "y") {
+            e.preventDefault();
+            console.log("Toggle Floating Blob");
+            blobVisible = !blobVisible;
+            blob.style.display = blobVisible ? "block" : "none";
+        }
+    });
+
+    /* ================= DRAG BLOB ================= */
+
+    let dragging = false, sx = 0, sy = 0;
+
+    blob.addEventListener("mousedown", (e) => {
         if (e.button !== 0) return;
+        dragging = true;
+        const r = blob.getBoundingClientRect();
+        sx = e.clientX - r.left;
+        sy = e.clientY - r.top;
 
-        isDragging = true;
-        blob.classList.add("dragging");
+        document.addEventListener("mousemove", move);
+        document.addEventListener("mouseup", up);
+    });
 
-        // Current position
-        const rect = blob.getBoundingClientRect();
-        startX = e.clientX - rect.left;
-        startY = e.clientY - rect.top;
-
-        document.addEventListener("mousemove", onMouseMove);
-        document.addEventListener("mouseup", onMouseUp);
-
-        e.preventDefault();
+    const move = (e) => {
+        if (!dragging) return;
+        blob.style.left = `${Math.max(0, e.clientX - sx)}px`;
+        blob.style.top = `${Math.max(0, e.clientY - sy)}px`;
+        blob.style.bottom = "auto";
     };
 
-    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
-
-    const onMouseMove = (e) => {
-        if (!isDragging) return;
-
-        const newLeft = e.clientX - startX;
-        const newTop = e.clientY - startY;
-
-        const blobRect = blob.getBoundingClientRect();
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-
-        const clampedLeft = clamp(newLeft, 0, vw - blobRect.width);
-        const clampedTop = clamp(newTop, 0, vh - blobRect.height);
-
-        blob.style.left = clampedLeft + "px";
-        blob.style.top = clampedTop + "px";
-        blob.style.bottom = "auto"; // so top takes effect
-        blob.style.right = "auto";
+    const up = () => {
+        dragging = false;
+        document.removeEventListener("mousemove", move);
+        document.removeEventListener("mouseup", up);
     };
-
-    const onMouseUp = () => {
-        if (!isDragging) return;
-        isDragging = false;
-        blob.classList.remove("dragging");
-        document.removeEventListener("mousemove", onMouseMove);
-        document.removeEventListener("mouseup", onMouseUp);
-    };
-
-    // Attach listener to the blob itself
-    blob.addEventListener("mousedown", onMouseDown);
 })();

@@ -132,10 +132,37 @@ const handleScreenshot = async (message, sender, sendResponse) => {
 const handleTextSend = async (message, sender, sendResponse) => {
     try {
 
+        const formData = new FormData();
+
+        const content = message.payload?.content;
+        const videoUrl = sender.tab?.url || "unkown_url";
+        const timeStamp = message.payload?.timeStamp || "";
+
+        const res = await fetch(`${SERVER_URL}/api/v1/notes/addText`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ content, videoUrl, timeStamp }),
+            credentials: "include",
+        });
+
+        const body = await res.json().catch(() => null);
+
+        sendResponse({
+            ok: res.ok,
+            status: res.status,
+            body,
+        });
+
     }
     catch (err) {
 
+        sendResponse({
+            ok: false,
+            error: err.message,
+        });
+
     }
+    return true; // keep channel open
 };
 
 export {handleSuccessfulLogin, handlePacket, handleScreenshot, handleTextSend};
