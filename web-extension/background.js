@@ -1,7 +1,12 @@
 import {connectToSocket, disconnectFromSocket} from "./socket/socket.js";
-import {handlePacket, handleSuccessfulLogin, handleScreenshot} from "./controllers/messageHandler.controller.js";
+import {
+    handlePacket,
+    handleSuccessfulLogin,
+    handleScreenshot,
+    handleTextSend
+} from "./controllers/messageHandler.controller.js";
 
-// Connect when on YouTube video
+// Connect to socket when on YouTube video
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status === "complete" && tab.url?.includes("youtube.com/watch")) {
         connectToSocket();
@@ -10,8 +15,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 });
 
-// TODO: First save the caption in storage and then send it to the server from there, instead of directly sending it to the server without storing
-
 // Receive Login Confirmation and adding the tokens to the storage
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
@@ -19,14 +22,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         case "LOGIN_SUCCESS":
             handleSuccessfulLogin(message, sender, sendResponse);
             break;
+        //
+        // case "PACKET":
+        //     handlePacket(message, sender, sendResponse);
+        //     break;
 
-        case "PACKET":
-            handlePacket(message, sender, sendResponse);
-            break;
-
-        case "SCREENSHOT_VISIBLE_TAB":
+        case "SCREENSHOT_CAPTURE_TAB":
             handleScreenshot(message, sender, sendResponse);
             break;
+
+            case "TEXT_SEND_TAB":
+             handleTextSend(message, sender, sendResponse);
+             break;
     }
 
     return true;

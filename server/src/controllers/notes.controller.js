@@ -102,4 +102,48 @@ const addTextContent = asyncHandler(async (req, res) => {
 
 });
 
-export {getAllNotes, getParticularNotes, addTextContent};
+const addScreenshot = asyncHandler(async (req, res) => {
+    const {name, videoUrl, description, timeStamp} = req.body;
+
+    let notes;
+
+    if (!req?.isExistingNotes) {
+        notes = await Notes.create({
+            name,
+            videoUrl,
+            description,
+            user: req.userId
+        });
+    }
+    else {
+        notes = await Notes.findById(req?.notesId);
+    }
+
+    if (!notes) {
+        throw new ApiError(statusCode.NOT_FOUND, 'Notes not found!');
+    }
+
+    if (!videoUrl) throw new ApiError(statusCode.NOT_FOUND, 'Video URL not found!');
+
+    if (!req.file) {
+        return res.status(400).json(new ApiError(400, "No screenshot was uploaded!"));
+    }
+
+    await NotesContent.create({
+        notesId: notes._id,
+        type: 'image',
+        value: req.file.path,
+        timestamp: timeStampToSeconds(timeStamp),
+    })
+
+    return res.status(200).json(new ApiResponse(200, "Screenshot added successfully", {
+        file: {
+            originalName: req.file.originalname,
+            fileName: req.file.filename,
+            size: req.file.size,
+        },
+    }));
+
+});
+
+export {getAllNotes, getParticularNotes, addTextContent, addScreenshot};

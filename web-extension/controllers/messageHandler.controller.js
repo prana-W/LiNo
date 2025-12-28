@@ -87,6 +87,7 @@ const handleAccessTokenExpiry = async (message, sender, sendResponse) => {
 
 const handleScreenshot = async (message, sender, sendResponse) => {
     const windowId = sender.tab?.windowId;
+    const {timeStamp} = message.payload;
 
     chrome.tabs.captureVisibleTab(windowId, { format: "png" }, async (dataUrl) => {
         if (chrome.runtime.lastError) {
@@ -101,9 +102,11 @@ const handleScreenshot = async (message, sender, sendResponse) => {
             const formData = new FormData();
 
             formData.append("screenshot", blob, `${sender.tab?.url}` || "screenshot.png");
+            formData.append("videoUrl", sender.tab?.url || "unkown_url");
+            formData.append("timeStamp", timeStamp || "");
 
-            const res = await fetch(`${SERVER_URL}/api/v1/services/screenshot`, {
-                method: "POST",
+            const res = await fetch(`${SERVER_URL}/api/v1/notes/addScreenshot`, {
+                method: "PUT",
                 body: formData,
                 credentials: "include",
             });
@@ -126,4 +129,40 @@ const handleScreenshot = async (message, sender, sendResponse) => {
     return true; // keep channel open
 };
 
-export {handleSuccessfulLogin, handlePacket, handleScreenshot};
+const handleTextSend = async (message, sender, sendResponse) => {
+    try {
+
+        const formData = new FormData();
+
+        const content = message.payload?.content;
+        const videoUrl = sender.tab?.url || "unkown_url";
+        const timeStamp = message.payload?.timeStamp || "";
+
+        const res = await fetch(`${SERVER_URL}/api/v1/notes/addText`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ content, videoUrl, timeStamp }),
+            credentials: "include",
+        });
+
+        const body = await res.json().catch(() => null);
+
+        sendResponse({
+            ok: res.ok,
+            status: res.status,
+            body,
+        });
+
+    }
+    catch (err) {
+
+        sendResponse({
+            ok: false,
+            error: err.message,
+        });
+
+    }
+    return true; // keep channel open
+};
+
+export {handleSuccessfulLogin, handlePacket, handleScreenshot, handleTextSend};

@@ -1,82 +1,187 @@
-/* Main blob */
 #floating-blob-extension-root {
     position: fixed;
-    inset: auto auto 24px 24px; /* bottom-left by default */
-    z-index: 2147483647;
     width: 56px;
     height: 56px;
-    border-radius: 9999px;
-    background: radial-gradient(circle at 30% 20%, #ffb347, #ff5f6d);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    left: 24px;
+    bottom: 24px;
+    background: radial-gradient(circle at top left, #7c3aed, #4c1d95);
+    border-radius: 50%;
+    box-shadow:
+            0 12px 30px rgba(0, 0, 0, 0.45),
+            inset 0 2px 6px rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+    user-select: none;
+    z-index: 2147483645;
+}
+
+/* Main icon */
+#floating-blob-extension-main-icon {
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: grab;
-    user-select: none;
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-#floating-blob-extension-root.dragging {
-    cursor: grabbing;
-    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
-    transform: scale(1.03);
-}
-
-/* Main icon text */
-#floating-blob-extension-main-icon {
-    font-size: 20px;
-    color: white;
+    color: #ffffff;
+    font-size: 28px;
     font-weight: 700;
-    pointer-events: none;
 }
 
-/* Options container */
+/* ================= OPTIONS ================= */
+
 #floating-blob-extension-options {
     position: absolute;
-    inset: 0;
-    pointer-events: none; /* interactions only on children */
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-/* Individual option circle – ALWAYS visible now */
+/* Individual option buttons */
 .floating-blob-option {
-    position: absolute;
-    width: 36px;
-    height: 36px;
-    border-radius: 9999px;
-    background: #111827;
-    color: white;
-    font-size: 12px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #111827, #1f2937);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow:
+            0 6px 18px rgba(0, 0, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.12);
     display: flex;
     align-items: center;
     justify-content: center;
-
-    /* visible by default */
-    opacity: 1;
-    transform: scale(1);
-    transition: transform 0.2s ease; /* optional subtle pop on hover if you want */
-
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-    pointer-events: auto;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.18s ease, background 0.18s ease;
 }
 
-/* Optional: slight grow when hovering each option */
 .floating-blob-option:hover {
-    transform: scale(1.08);
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
 }
 
-/* Radial positions */
-.floating-blob-option.option-1 {
-    transform: translate(0, -70px);
+/* ================= FLOATING TEXTAREA ================= */
+
+#floating-textarea-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    z-index: 2147483646;
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    border-radius: 16px;
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.55),
+            0 8px 24px rgba(0, 0, 0, 0.35),
+            inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+    animation: fadeInScale 0.25s ease-out;
 }
 
-.floating-blob-option.option-2 {
-    transform: translate(60px, -40px);
+/* Header */
+#floating-textarea-header {
+    padding: 16px 20px;
+    background: rgba(0, 0, 0, 0.35);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: grab;
+    user-select: none;
 }
 
-.floating-blob-option.option-3 {
-    transform: translate(60px, 40px);
+#floating-textarea-header:active {
+    cursor: grabbing;
 }
 
-.floating-blob-option span {
-    pointer-events: none;
+#floating-textarea-header span {
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Close button */
+#close-textarea-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+#close-textarea-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* Textarea */
+#floating-textarea {
+    width: 100%;
+    min-height: 200px;
+    max-height: 400px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.25);
+    border: none;
+    outline: none;
+    resize: vertical;
+    color: white;
+    font-size: 14px;
+    line-height: 1.6;
+    box-sizing: border-box;
+}
+
+#floating-textarea::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+#floating-textarea:focus {
+    background: rgba(0, 0, 0, 0.35);
+}
+
+/* Send button */
+#floating-textarea-send {
+    margin: 16px 20px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow:
+            0 4px 12px rgba(102, 126, 234, 0.4),
+            0 2px 6px rgba(0, 0, 0, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#floating-textarea-send:hover {
+    transform: translateY(-2px);
+    box-shadow:
+            0 6px 20px rgba(102, 126, 234, 0.55),
+            0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+#floating-textarea-send:active {
+    transform: translateY(0);
+}
+
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.85);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
 }
