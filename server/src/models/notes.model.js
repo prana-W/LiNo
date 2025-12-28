@@ -15,14 +15,6 @@ const notesSchema = new mongoose.Schema(
             type: String,
             default: '',
         },
-        content: {
-            type: String,
-            default: '',
-        },
-        summarised_content: {
-            type: String,
-            default: '',
-        },
         user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',

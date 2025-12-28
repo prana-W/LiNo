@@ -1,6 +1,8 @@
 import {ApiError, ApiResponse, asyncHandler} from '../utility/index.js';
 import {Notes} from '../models/index.js';
 import statusCode from '../constants/statusCode.js';
+import NotesContent from "../models/notesContent.model.js";
+import timeStampToSeconds from '../utility/timeStampToSeconds.util.js';
 
 const getAllNotes = asyncHandler(async (req, res) => {
     const userId = req.userId;
@@ -63,4 +65,41 @@ const getParticularNotes = asyncHandler(async (req, res) => {
         );
 });
 
-export {getAllNotes, getParticularNotes};
+const addTextContent = asyncHandler(async (req, res) => {
+
+    // Todo: Pass timeStamp as a string
+    const {name, videoUrl, description, content, timeStamp} = req.body;
+
+    let notes;
+
+    if (!req?.isExistingNotes) {
+        notes = await Notes.create({
+            name,
+            videoUrl,
+            description,
+            user: req.userId
+        });
+    }
+    else {
+        notes = await Notes.findById(req?.notesId);
+    }
+
+        if (!notes) {
+            throw new ApiError(statusCode.NOT_FOUND, 'Notes not found!');
+        }
+
+        if (!videoUrl) throw new ApiError(statusCode.NOT_FOUND, 'Video URL not found!');
+
+        // Add a new text content to existing notes
+        await NotesContent.create({
+            notesId: notes._id,
+            type: 'text',
+            value: content,
+            timestamp: timeStampToSeconds(timeStamp),
+        })
+
+    return res.status(statusCode.OK).json(new ApiResponse(200, 'Notes was added!'));
+
+});
+
+export {getAllNotes, getParticularNotes, addTextContent};
