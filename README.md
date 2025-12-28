@@ -1,55 +1,44 @@
-# LiNo - LIve NOtes
+# LiNo – **LIve NOtes** *(Under Development)*
 
-**LiNo** is a browser extension that automatically tracks and records YouTube captions/subtitles, converting them into **structured, easy-to-access notes**. It is perfect for notes, tutorials, or any video content, eliminating the need to pause and write repeatedly.
+**LiNo** is a browser extension currently under development that helps users capture and organize notes from YouTube videos **without ever leaving the video player**.
 
----
+With LiNo, users can **take screenshots, write notes, and save everything instantly** while watching a video — all from a **single, minimal interface** directly on the YouTube screen.
 
-## Features
+🚧 **Status:** Currently under development
 
-- **Automatic Caption Tracking:** Captures YouTube subtitles in real time.
-- **Structured Notes:** Converts captions into organized notes.
-- **Cross-Platform Access:** View your notes on the web or via the mobile app.
-- **Easy Setup:** Just install the extension, log in, and toggle captions on.
-- **Time Saver:** No need to pause and write notes repeatedly.
+⏳ **Expected Completion:** ~3 months
 
 ---
 
-## Installation
+## What LiNo Enables
 
-1. Download the extension from [here]().
-2. Open Chrome (or Chromium-based browser) and navigate to `chrome://extensions/`.
-3. Enable **Developer Mode**.
-4. Click **Load unpacked** and select the extension folder.
-5. Install and log in to start tracking captions automatically.
+* **One-Tap Note Taking**
+  Capture screenshots or write notes instantly using a single button — no switching tabs, no pausing the video, no leaving the screen.
 
----
+* **Stay Inside the Video Player**
+  All actions happen directly on the YouTube player.
+  **No need to leave a single screen.**
 
-## Usage
+* **Automatic Saving**
+  Every note and screenshot is saved automatically and can be accessed anytime from the **app or the website**.
 
-1. Open any YouTube video.
-2. Turn **on** subtitles/captions.
-3. LiNo will automatically start recording captions.
-4. Access your notes anytime via the web or mobile app.
+* **Unified Notes Experience**
+  Screenshots, text notes, and video timestamps are stored together in one place.
 
 ---
 
-## Technology Stack
+## Planned & Future Features
 
-- **Frontend:** React.js
-- **Browser Extension:** Chrome Extension API (Manifest V3)
-- **Backend:** Node.js, Express.js
-- **Database:** MongoDB, Redis
-- **Real-time Data:** Socket.io
+* **Subtitle Capture & Recording**
+  Automatically capture and save video subtitles directly into notes.
 
----
+* **AI-Powered Summaries**
+  Generate concise summaries of videos and notes using AI.
 
-## Contact
-
-For questions, suggestions, or feedback:
-
-- Email: []()
-- Website: []()
+* **More Smart Features**
+  Additional productivity and learning-focused features planned for future updates.
 
 ---
 
-**Make notes smarter, faster, and easier with LiNo!**
+**All features. One tap. One screen. Zero interruptions.**
+LiNo is being built to make learning seamless and distraction-free!
