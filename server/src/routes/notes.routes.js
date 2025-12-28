@@ -2,15 +2,17 @@ import router from 'express';
 import {
     getAllNotes,
     getParticularNotes,
-    addTextContent
+    addTextContent,
+    addScreenshot
 } from '../controllers/notes.controller.js';
 import verifyExistingNotes from "../middlewares/verifyExistingNotes.js";
+import upload from "../middlewares/multer.js";
 
 const notesRouter = router();
 
-notesRouter.route('/')
-    .get(getAllNotes)
-notesRouter.route('/:notesId').get(getParticularNotes); // Todo: Add get notes by id controller
+notesRouter.route('/').get(getAllNotes);
+notesRouter.route('/:notesId').get(getParticularNotes);
 notesRouter.route('/addText').put(verifyExistingNotes, addTextContent);
+notesRouter.route('/addScreenshot').put(verifyExistingNotes, upload.single('screenshot'), addScreenshot);
 
 export default notesRouter;
