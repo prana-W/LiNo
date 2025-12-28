@@ -136,7 +136,13 @@ window.addEventListener('unload', () => {
         console.log('opt1 clicked!')
 
         chrome.runtime.sendMessage(
-            { type: "SCREENSHOT_CAPTURE_TAB" },
+            { type: "SCREENSHOT_CAPTURE_TAB",
+
+                payload: {
+                timeStamp:  `${document.querySelector('.ytp-time-current').innerText}/${document.querySelector('.ytp-time-duration').innerText}`,
+                }
+
+            },
             (response) => {
                 if (chrome.runtime.lastError) {
                     console.error("Message error:", chrome.runtime.lastError.message);

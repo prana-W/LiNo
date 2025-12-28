@@ -87,7 +87,7 @@ const handleAccessTokenExpiry = async (message, sender, sendResponse) => {
 
 const handleScreenshot = async (message, sender, sendResponse) => {
     const windowId = sender.tab?.windowId;
-    console.log(windowId)
+    const {timeStamp} = message.payload;
 
     chrome.tabs.captureVisibleTab(windowId, { format: "png" }, async (dataUrl) => {
         if (chrome.runtime.lastError) {
@@ -103,6 +103,7 @@ const handleScreenshot = async (message, sender, sendResponse) => {
 
             formData.append("screenshot", blob, `${sender.tab?.url}` || "screenshot.png");
             formData.append("videoUrl", sender.tab?.url || "unkown_url");
+            formData.append("timeStamp", timeStamp || "");
 
             const res = await fetch(`${SERVER_URL}/api/v1/notes/addScreenshot`, {
                 method: "PUT",

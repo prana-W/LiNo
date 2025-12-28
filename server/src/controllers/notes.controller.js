@@ -103,7 +103,6 @@ const addTextContent = asyncHandler(async (req, res) => {
 });
 
 const addScreenshot = asyncHandler(async (req, res) => {
-
     const {name, videoUrl, description, timeStamp} = req.body;
 
     let notes;
