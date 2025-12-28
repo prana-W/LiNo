@@ -87,6 +87,7 @@ const handleAccessTokenExpiry = async (message, sender, sendResponse) => {
 
 const handleScreenshot = async (message, sender, sendResponse) => {
     const windowId = sender.tab?.windowId;
+    console.log(windowId)
 
     chrome.tabs.captureVisibleTab(windowId, { format: "png" }, async (dataUrl) => {
         if (chrome.runtime.lastError) {
@@ -101,9 +102,10 @@ const handleScreenshot = async (message, sender, sendResponse) => {
             const formData = new FormData();
 
             formData.append("screenshot", blob, `${sender.tab?.url}` || "screenshot.png");
+            formData.append("videoUrl", sender.tab?.url || "unkown_url");
 
-            const res = await fetch(`${SERVER_URL}/api/v1/services/screenshot`, {
-                method: "POST",
+            const res = await fetch(`${SERVER_URL}/api/v1/notes/addScreenshot`, {
+                method: "PUT",
                 body: formData,
                 credentials: "include",
             });
@@ -126,4 +128,13 @@ const handleScreenshot = async (message, sender, sendResponse) => {
     return true; // keep channel open
 };
 
-export {handleSuccessfulLogin, handlePacket, handleScreenshot};
+const handleTextSend = async (message, sender, sendResponse) => {
+    try {
+
+    }
+    catch (err) {
+
+    }
+};
+
+export {handleSuccessfulLogin, handlePacket, handleScreenshot, handleTextSend};

@@ -5,7 +5,7 @@ import statusCode from '../constants/statusCode.js';
 
 const verifyExistingNotes = asyncHandler(async (req, res, next) => {
     const userId = req.userId;
-    const {videoUrl} = req.body;
+    const videoUrl = req?.body?.videoUrl;
 
     if (!userId) {
         throw new ApiError(

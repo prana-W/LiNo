@@ -13,6 +13,6 @@ const notesRouter = router();
 notesRouter.route('/').get(getAllNotes);
 notesRouter.route('/:notesId').get(getParticularNotes);
 notesRouter.route('/addText').put(verifyExistingNotes, addTextContent);
-notesRouter.route('/addScreenshot').put(verifyExistingNotes, upload.single('screenshot'), addScreenshot);
+notesRouter.route('/addScreenshot').put(upload.single('screenshot'), verifyExistingNotes, addScreenshot);
 
 export default notesRouter;

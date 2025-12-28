@@ -1,4 +1,6 @@
-// Callback function to get the caption text
+// Commenting out all the code related to caption capturing for now
+
+/*
 
 const PACKET_EMIT_INTERVAL = 3000; // Todo: Change
 
@@ -97,6 +99,9 @@ window.addEventListener('unload', () => {
     clearInterval(timeOutForCaption);
 });
 
+
+ */
+
 (() => {
     // Avoid injecting multiple times
     if (window.__floating_blob_extension_initialized__) return;
@@ -105,6 +110,9 @@ window.addEventListener('unload', () => {
     // Create main blob container
     const blob = document.createElement("div");
     blob.id = "floating-blob-extension-root";
+
+    // Hide by default
+    blob.style.display = "none";
 
     // Main icon
     const mainIcon = document.createElement("div");
@@ -128,7 +136,7 @@ window.addEventListener('unload', () => {
         console.log('opt1 clicked!')
 
         chrome.runtime.sendMessage(
-            { type: "SCREENSHOT_VISIBLE_TAB" },
+            { type: "SCREENSHOT_CAPTURE_TAB" },
             (response) => {
                 if (chrome.runtime.lastError) {
                     console.error("Message error:", chrome.runtime.lastError.message);
@@ -155,26 +163,56 @@ window.addEventListener('unload', () => {
     opt2.addEventListener("click", (e) => {
         e.stopPropagation();
         console.log("Option 2 clicked");
-        // TODO: your logic
+
+        chrome.runtime.sendMessage(
+            { type: "TEXT_SEND_TAB" },
+            (response) => {
+                if (chrome.runtime.lastError) {
+                    console.error("Message error:", chrome.runtime.lastError.message);
+                    return;
+                }
+
+                if (!response?.ok) {
+                    console.error("Error in sending notes:", response?.error || response);
+                    return;
+                }
+
+                console.log("Notes added successfully!", response);
+                // You can also show a small toast/notification in-page via DOM if you want
+            }
+        );
     });
 
     // Option 3
-    const opt3 = document.createElement("div");
-    opt3.className = "floating-blob-option option-3";
-    opt3.innerHTML = "<span>3</span>";
-    opt3.title = "Option 3";
-    opt3.addEventListener("click", (e) => {
-        e.stopPropagation();
-        console.log("Option 3 clicked");
-        // TODO: your logic
-    });
+    // const opt3 = document.createElement("div");
+    // opt3.className = "floating-blob-option option-3";
+    // opt3.innerHTML = "<span>3</span>";
+    // opt3.title = "Option 3";
+    // opt3.addEventListener("click", (e) => {
+    //     e.stopPropagation();
+    //     console.log("Option 3 clicked");
+    //     // TODO: your logic
+    // });
 
     optionsContainer.appendChild(opt1);
     optionsContainer.appendChild(opt2);
-    optionsContainer.appendChild(opt3);
+    // optionsContainer.appendChild(opt3);
     blob.appendChild(optionsContainer);
 
     document.documentElement.appendChild(blob);
+
+    // ========== KEYBOARD SHORTCUT TOGGLE ==========
+    let isVisible = false;
+
+    document.addEventListener("keydown", (e) => {
+        // Ctrl+Shift+Y (or Cmd+Shift+Y on Mac)
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'Y') {
+            e.preventDefault();
+            isVisible = !isVisible;
+            blob.style.display = isVisible ? "block" : "none";
+            console.log("Floating blob toggled:", isVisible ? "visible" : "hidden");
+        }
+    });
 
     // ========== DRAG LOGIC ==========
     let isDragging = false;
