@@ -101,7 +101,7 @@ const handleScreenshot = async (message, sender, sendResponse) => {
 
             const formData = new FormData();
 
-            formData.append("screenshot", blob, `${sender.tab?.url}` || "screenshot.png");
+            formData.append("screenshot", blob, "screenshot");
             formData.append("videoUrl", sender.tab?.url || "unkown_url");
             formData.append("timeStamp", timeStamp || "");
 

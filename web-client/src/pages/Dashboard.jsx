@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import useApi from "@/hooks/useApi";
+import SearchBar from "@/components/SearchBar";
 import {
     Card,
     CardHeader,
@@ -11,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import {toast} from "sonner";
 
 function NotesSkeletonCard() {
     return (
@@ -33,36 +36,25 @@ function NotesSkeletonCard() {
 }
 
 const NotesDashboard = () => {
+    const navigate = useNavigate();
     const [notes, setNotes] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+    const [initialLoading, setInitialLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [filters, setFilters] = useState({});
 
     const api = useApi();
-
-    // details state
-    const [selectedNotes, setSelectedNotes] = useState(null);
-    const [detailLoading, setDetailLoading] = useState(false);
-    const [detailError, setDetailError] = useState("");
 
     // Fetch all notes
     const fetchNotes = async () => {
         try {
-            setLoading(true);
-            setError("");
 
-            const res = await api.get("/notes");
-
-            // backend: { data: [...] } or { data: { notes: [...] } }
-            const data = res.data.data;
+            const { data } = await api.get("/notes");
             const list = Array.isArray(data) ? data : data.notes || [];
             setNotes(list);
         } catch (err) {
-            console.error(err);
-            setError(
-                err?.response?.data?.message || "Failed to load notes. Try again."
-            );
+            toast.error(err?.message || err);
         } finally {
-            setLoading(false);
+            setInitialLoading(false);
         }
     };
 
@@ -70,23 +62,93 @@ const NotesDashboard = () => {
         fetchNotes();
     }, []);
 
-    const handleOpenVideo = (notes, e) => {
-        // avoid triggering card click
+    // Advanced search and filter logic
+    const filteredNotes = useMemo(() => {
+        let result = [...notes];
+
+        // Search by name, description, and summarised content
+        if (searchTerm) {
+            const term = searchTerm.toLowerCase();
+            result = result.filter((note) => {
+                const name = (note.name || "").toLowerCase();
+                const description = (note.description || "").toLowerCase();
+                const summary = (note.summarised_content || "").toLowerCase();
+                const content = (note.content || "").toLowerCase();
+
+                return (
+                    name.includes(term) ||
+                    description.includes(term) ||
+                    summary.includes(term) ||
+                    content.includes(term)
+                );
+            });
+        }
+
+        // Filter by favourite status
+        if (filters.favourite === "true") {
+            result = result.filter((note) => note.isFavourite);
+        } else if (filters.favourite === "false") {
+            result = result.filter((note) => !note.isFavourite);
+        }
+
+        // Filter by collection
+        if (filters.collection) {
+            result = result.filter((note) => {
+                const collectionName =
+                    note.collection?.name || note.collection || "";
+                return collectionName === filters.collection;
+            });
+        }
+
+        // Sort by date (newest first by default)
+        if (filters.sortBy === "oldest") {
+            result.sort(
+                (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+            );
+        } else if (filters.sortBy === "name") {
+            result.sort((a, b) =>
+                (a.name || "").localeCompare(b.name || "")
+            );
+        } else {
+            // Default: newest first
+            result.sort(
+                (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+            );
+        }
+
+        return result;
+    }, [notes, searchTerm, filters]);
+
+    // Extract unique collections for filter dropdown
+    const collectionOptions = useMemo(() => {
+        const collections = new Set();
+        notes.forEach((note) => {
+            const collectionName = note.collection?.name || note.collection;
+            if (collectionName) {
+                collections.add(collectionName);
+            }
+        });
+        return Array.from(collections).map((name) => ({
+            label: name,
+            value: name,
+        }));
+    }, [notes]);
+
+    const handleOpenVideo = (note, e) => {
         if (e) e.stopPropagation();
-        if (!notes?.videoUrl) return;
-        window.open(notes.videoUrl, "_blank", "noopener,noreferrer");
+        if (!note?.videoUrl) return;
+        window.open(note.videoUrl, "_blank", "noopener,noreferrer");
     };
 
     const handleToggleFavourite = async (notesId, e) => {
-        // avoid triggering card click
         if (e) e.stopPropagation();
 
         // Optimistic update
         setNotes((prev) =>
-            prev.map((lec) =>
-                lec._id === notesId
-                    ? { ...lec, isFavourite: !lec.isFavourite }
-                    : lec
+            prev.map((note) =>
+                note._id === notesId
+                    ? { ...note, isFavourite: !note.isFavourite }
+                    : note
             )
         );
 
@@ -96,42 +158,22 @@ const NotesDashboard = () => {
             console.error(err);
             // Revert on error
             setNotes((prev) =>
-                prev.map((lec) =>
-                    lec._id === notesId
-                        ? { ...lec, isFavourite: !lec.isFavourite }
-                        : lec
+                prev.map((note) =>
+                    note._id === notesId
+                        ? { ...note, isFavourite: !note.isFavourite }
+                        : note
                 )
             );
         }
     };
 
-    const fetchNotesDetails = async (notesId) => {
-        if (!notesId) return;
-        try {
-            setDetailLoading(true);
-            setDetailError("");
-
-            const res = await api.get(`/notes/${notesId}`);
-
-            // backend could respond as { data: notes } or { notes } or notes itself
-            const payload = res.data;
-            const notes =
-                payload.data || payload.notes || payload;
-
-            setSelectedNotes(notes);
-        } catch (err) {
-            console.error(err);
-            setDetailError(
-                err?.response?.data?.message ||
-                "Failed to load notes details. Please try again."
-            );
-        } finally {
-            setDetailLoading(false);
-        }
+    const handleCardClick = (notesId) => {
+        navigate(`/notes/${notesId}`);
     };
 
-    const handleSelectNotes = (notesId) => {
-        fetchNotesDetails(notesId);
+    const handleSearch = (term, newFilters) => {
+        setSearchTerm(term);
+        setFilters(newFilters);
     };
 
     const formatDate = (dateString) => {
@@ -145,103 +187,141 @@ const NotesDashboard = () => {
         });
     };
 
+    // Filter options for SearchBar
+    const filterOptions = [
+        {
+            label: "",
+            value: "sortBy",
+            options: [
+                { label: "Newest First", value: "newest" },
+                { label: "Oldest First", value: "oldest" },
+                { label: "Name (A-Z)", value: "name" },
+            ],
+        },
+    ];
+
+    // Add collection filter if collections exist
+    if (collectionOptions.length > 0) {
+        filterOptions.push({
+            label: "Collection",
+            value: "collection",
+            options: collectionOptions,
+        });
+    }
+
     return (
         <div className="min-h-screen bg-background text-foreground">
             <div className="mx-auto max-w-6xl px-4 py-8">
                 {/* Header */}
-                <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                        <h1 className="text-3xl font-semibold tracking-tight">
-                            Notes Dashboard
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            All your notes in one place. Click a notes to view full
-                            details, or watch and mark favourites.
-                        </p>
+                <div className="mb-6">
+                    <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                        <div>
+                            <h1 className="text-3xl font-semibold tracking-tight">
+                                Notes Dashboard
+                            </h1>
+                            <p className="text-sm text-muted-foreground">
+                                All your notes in one place. Click a note card to
+                                view full details.
+                            </p>
+                        </div>
+
+                        <Button variant="outline" size="sm" onClick={fetchNotes}>
+                            Refresh
+                        </Button>
                     </div>
 
-                    <Button variant="outline" size="sm" onClick={fetchNotes}>
-                        Refresh
-                    </Button>
+                    {/* Search Bar */}
+                    <SearchBar
+                        onSearch={handleSearch}
+                        placeholder="Search notes by name, description, or content..."
+                        filterOptions={filterOptions}
+                        debounceMs={300}
+                    />
+
+                    {/* Results Count */}
+                    {!initialLoading && (
+                        <p className="mt-3 text-sm text-muted-foreground">
+                            Showing {filteredNotes.length} of {notes.length} notes
+                        </p>
+                    )}
                 </div>
 
-                {/* Error */}
-                {error && (
-                    <div className="mb-4 rounded-lg border border-destructive bg-destructive/10 px-4 py-2 text-sm text-destructive">
-                        {error}
-                    </div>
-                )}
-
-                {/* Loading state */}
-                {loading ? (
+                {/* Loading state (only on initial load) */}
+                {initialLoading ? (
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {Array.from({ length: 6 }).map((_, idx) => (
                             <NotesSkeletonCard key={idx} />
                         ))}
                     </div>
-                ) : notes.length === 0 ? (
+                ) : filteredNotes.length === 0 ? (
                     // Empty state
                     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-10 text-center">
-                        <p className="text-lg font-medium">No notes found</p>
+                        <p className="text-lg font-medium">
+                            {searchTerm || Object.keys(filters).length > 0
+                                ? "No notes match your search"
+                                : "No notes found"}
+                        </p>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            Once you add notes from the backend, they will appear here.
+                            {searchTerm || Object.keys(filters).length > 0
+                                ? "Try adjusting your search or filters"
+                                : "Once you add notes from the backend, they will appear here."}
                         </p>
                     </div>
                 ) : (
                     // Notes grid
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {notes.map((notes) => (
+                        {filteredNotes.map((note) => (
                             <Card
-                                key={notes._id}
-                                className="flex cursor-pointer flex-col justify-between transition hover:shadow-md"
-                                onClick={() => handleSelectNotes(notes._id)}
+                                key={note._id}
+                                className="flex cursor-pointer flex-col justify-between transition hover:shadow-md hover:scale-[1.02]"
+                                onClick={() => handleCardClick(note._id)}
                                 role="button"
                                 tabIndex={0}
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter") {
-                                        handleSelectNotes(notes._id);
+                                        handleCardClick(note._id);
                                     }
                                 }}
                             >
                                 <CardHeader>
                                     <div className="flex items-start justify-between gap-2">
-                                        <div>
+                                        <div className="flex-1 min-w-0">
                                             <CardTitle className="line-clamp-1">
-                                                {notes.name || "Untitled Notes"}
+                                                {note.name || "Untitled Notes"}
                                             </CardTitle>
                                             <CardDescription className="mt-1 text-xs">
-                                                {notes.collection?.name
-                                                    ? `Collection: ${notes.collection.name}`
-                                                    : notes.collection
-                                                        ? `Collection: ${notes.collection}`
+                                                {note.collection?.name
+                                                    ? `Collection: ${note.collection.name}`
+                                                    : note.collection
+                                                        ? `Collection: ${note.collection}`
                                                         : "No collection"}
                                             </CardDescription>
                                         </div>
-                                        {notes.isFavourite && (
+                                        {note.isFavourite && (
                                             <Badge variant="default" className="shrink-0">
-                                                ★ Favourite
+                                                ★
                                             </Badge>
                                         )}
                                     </div>
-                                    {notes.createdAt && (
+                                    {note.createdAt && (
                                         <p className="mt-2 text-xs text-muted-foreground">
-                                            Added on {formatDate(notes.createdAt)}
+                                            {formatDate(note.createdAt)}
                                         </p>
                                     )}
                                 </CardHeader>
 
                                 <CardContent className="space-y-2 text-sm">
-                                    {notes.description && (
+                                    {note.description && (
                                         <p className="line-clamp-2 text-muted-foreground">
-                                            {notes.description}
+                                            {note.description}
                                         </p>
                                     )}
 
-                                    {notes.summarised_content && (
+                                    {note.summarised_content && (
                                         <div className="mt-2 rounded-md bg-muted/60 p-2 text-xs">
                                             <p className="font-medium">Summary</p>
                                             <p className="mt-1 line-clamp-3 text-muted-foreground">
-                                                {notes.summarised_content}
+                                                {note.summarised_content}
                                             </p>
                                         </div>
                                     )}
@@ -251,177 +331,26 @@ const NotesDashboard = () => {
                                     <Button
                                         size="sm"
                                         className="flex-1"
-                                        onClick={(e) => handleOpenVideo(notes, e)}
-                                        disabled={!notes.videoUrl}
+                                        onClick={(e) => handleOpenVideo(note, e)}
+                                        disabled={!note.videoUrl}
                                     >
-                                        Watch video
+                                        Watch
                                     </Button>
 
                                     <Button
                                         size="sm"
-                                        variant={notes.isFavourite ? "default" : "outline"}
+                                        variant={note.isFavourite ? "default" : "outline"}
                                         onClick={(e) =>
-                                            handleToggleFavourite(notes._id, e)
+                                            handleToggleFavourite(note._id, e)
                                         }
                                     >
-                                        {notes.isFavourite ? "Unfavourite" : "Favourite"}
+                                        {note.isFavourite ? "★" : "☆"}
                                     </Button>
                                 </CardFooter>
                             </Card>
                         ))}
                     </div>
                 )}
-
-                {/* Selected notes details */}
-                <div className="mt-8">
-                    {detailLoading && (
-                        <div className="space-y-3">
-                            <Skeleton className="h-6 w-40" />
-                            <Card>
-                                <CardHeader>
-                                    <Skeleton className="h-5 w-1/2" />
-                                    <Skeleton className="mt-2 h-4 w-1/3" />
-                                </CardHeader>
-                                <CardContent className="space-y-2">
-                                    <Skeleton className="h-4 w-full" />
-                                    <Skeleton className="h-4 w-5/6" />
-                                    <Skeleton className="h-4 w-2/3" />
-                                </CardContent>
-                            </Card>
-                        </div>
-                    )}
-
-                    {detailError && (
-                        <div className="mb-3 rounded-lg border border-destructive bg-destructive/10 px-4 py-2 text-sm text-destructive">
-                            {detailError}
-                        </div>
-                    )}
-
-                    {selectedNotes && !detailLoading && (
-                        <div>
-                            <h2 className="mb-3 text-xl font-semibold tracking-tight">
-                                Notes details
-                            </h2>
-                            <Card className="border">
-                                <CardHeader>
-                                    <div className="flex flex-wrap items-start justify-between gap-3">
-                                        <div>
-                                            <CardTitle>
-                                                {selectedNotes.name || "Untitled Notes"}
-                                            </CardTitle>
-                                            {selectedNotes.description && (
-                                                <CardDescription className="mt-1">
-                                                    {selectedNotes.description}
-                                                </CardDescription>
-                                            )}
-                                        </div>
-                                        {selectedNotes.isFavourite && (
-                                            <Badge>★ Favourite</Badge>
-                                        )}
-                                    </div>
-                                    {selectedNotes.createdAt && (
-                                        <p className="mt-2 text-xs text-muted-foreground">
-                                            Created on{" "}
-                                            {formatDate(selectedNotes.createdAt)}
-                                        </p>
-                                    )}
-                                    {selectedNotes.updatedAt && (
-                                        <p className="text-xs text-muted-foreground">
-                                            Last updated{" "}
-                                            {formatDate(selectedNotes.updatedAt)}
-                                        </p>
-                                    )}
-                                    {selectedNotes.videoUrl && (
-                                        <p className="mt-2 text-xs text-muted-foreground">
-                                            Video URL:{" "}
-                                            <a
-                                                href={selectedNotes.videoUrl}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="underline"
-                                            >
-                                                {selectedNotes.videoUrl}
-                                            </a>
-                                        </p>
-                                    )}
-                                </CardHeader>
-
-                                <CardContent className="space-y-6 text-sm">
-                                    {selectedNotes.content && (
-                                        <section>
-                                            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                                                Full content
-                                            </p>
-                                            <p className="whitespace-pre-wrap">
-                                                {selectedNotes.content}
-                                            </p>
-                                        </section>
-                                    )}
-
-                                    {selectedNotes.summarised_content && (
-                                        <section>
-                                            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                                                Summary
-                                            </p>
-                                            <p className="whitespace-pre-wrap text-muted-foreground">
-                                                {selectedNotes.summarised_content}
-                                            </p>
-                                        </section>
-                                    )}
-
-                                    <section className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-                                        {selectedNotes.collection && (
-                                            <span>
-                                                Collection:{" "}
-                                                {selectedNotes.collection.name ||
-                                                    selectedNotes.collection}
-                                            </span>
-                                        )}
-                                        {selectedNotes.user && (
-                                            <span>
-                                                Author:{" "}
-                                                {selectedNotes.user.name ||
-                                                    selectedNotes.user.email ||
-                                                    selectedNotes.user}
-                                            </span>
-                                        )}
-                                    </section>
-                                </CardContent>
-
-                                <CardFooter className="flex flex-wrap gap-2">
-                                    {selectedNotes.videoUrl && (
-                                        <Button
-                                            size="sm"
-                                            onClick={() =>
-                                                handleOpenVideo(selectedNotes)
-                                            }
-                                        >
-                                            Watch video
-                                        </Button>
-                                    )}
-                                    <Button
-                                        size="sm"
-                                        variant={
-                                            selectedNotes.isFavourite
-                                                ? "default"
-                                                : "outline"
-                                        }
-                                        onClick={(e) =>
-                                            handleToggleFavourite(
-                                                selectedNotes._id,
-                                                e
-                                            )
-                                        }
-                                    >
-                                        {selectedNotes.isFavourite
-                                            ? "Unfavourite"
-                                            : "Favourite"}
-                                    </Button>
-                                </CardFooter>
-                            </Card>
-                        </div>
-                    )}
-                </div>
             </div>
         </div>
     );

@@ -3,6 +3,7 @@ import {Notes} from '../models/index.js';
 import statusCode from '../constants/statusCode.js';
 import NotesContent from "../models/notesContent.model.js";
 import timeStampToSeconds from '../utility/timeStampToSeconds.util.js';
+import mongoose from "mongoose";
 
 const getAllNotes = asyncHandler(async (req, res) => {
     const userId = req.userId;
@@ -146,4 +147,34 @@ const addScreenshot = asyncHandler(async (req, res) => {
 
 });
 
-export {getAllNotes, getParticularNotes, addTextContent, addScreenshot};
+const allNotesContent = asyncHandler(async (req, res) => {
+    const { notesId } = req.params;
+
+    if (!notesId) {
+        throw new ApiError(
+            statusCode.BAD_REQUEST,
+            "Notes ID not found!"
+        );
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(notesId)) {
+        throw new ApiError(
+            statusCode.BAD_REQUEST,
+            "Invalid Notes ID"
+        );
+    }
+
+    const notesContent = await NotesContent.find({ notesId })
+        .sort({ timestamp: 1, order: 1 }) // primary: timestamp, fallback: order
+        .lean();
+
+    return res.status(statusCode.OK).json(
+        new ApiResponse(
+            statusCode.OK,
+            "Notes content fetched successfully",
+            notesContent
+        )
+    );
+});
+
+export {getAllNotes, getParticularNotes, addTextContent, addScreenshot, allNotesContent};

@@ -4,5 +4,6 @@ import NotFound from './NotFound';
 import Test from './Test';
 import Dashboard from './Dashboard';
 import Auth from './Auth.jsx';
+import NotesDetail from './NotesDetail';
 
-export {Home, About, NotFound, Test, Dashboard, Auth};
+export {Home, About, NotFound, Test, Dashboard, Auth, NotesDetail};
