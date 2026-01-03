@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, ExternalLink, Star } from "lucide-react";
+import { ArrowLeft, ExternalLink, Star, Save, Lock, Unlock } from "lucide-react";
 import useApi from "@/hooks/useApi";
 import {
     Card,
@@ -14,6 +14,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { toast } from "sonner";
+
+const formatTimestamp = (seconds = 0) => {
+    const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
+    const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+    const s = String(seconds % 60).padStart(2, "0");
+    return `${h}:${m}:${s}`;
+};
 
 const NoteDetailsPage = () => {
     const { id } = useParams();
@@ -21,304 +30,162 @@ const NoteDetailsPage = () => {
     const api = useApi();
 
     const [note, setNote] = useState(null);
+    const [contents, setContents] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+    const [readOnly, setReadOnly] = useState(true);
 
     useEffect(() => {
-        fetchNoteDetails();
+        fetchAll();
     }, [id]);
 
-    const fetchNoteDetails = async () => {
-        if (!id) {
-            navigate("/notes");
-            return;
-        }
-
+    const fetchAll = async () => {
         try {
             setLoading(true);
-            setError("");
+            const noteRes = await api.get(`/notes/${id}`);
+            const contentRes = await api.get(`/notes/content/${id}`);
 
-            const res = await api.get(`/notes/${id}`);
-            const payload = res.data;
-            const noteData = payload.data || payload.notes || payload;
-
-            setNote(noteData);
+            setNote(noteRes.data);
+            setContents(contentRes.data);
         } catch (err) {
-            console.error(err);
-            setError(
-                err?.response?.data?.message ||
-                "Failed to load note details. Please try again."
-            );
+            toast.error(err?.message);
+            navigate("/notes");
         } finally {
             setLoading(false);
         }
     };
 
-    const handleToggleFavourite = async () => {
-        if (!note) return;
-
-        // Optimistic update
-        setNote((prev) => ({
-            ...prev,
-            isFavourite: !prev.isFavourite,
-        }));
-
+    const handleSave = async () => {
         try {
-            await api.post("/notes/toggle-favourite", { notesId: note._id });
-        } catch (err) {
-            console.error(err);
-            // Revert on error
-            setNote((prev) => ({
-                ...prev,
-                isFavourite: !prev.isFavourite,
-            }));
+            await api.post("/notes/content/edit", {
+                notesId: id,
+                contents,
+            });
+            toast.success("Notes saved");
+            setReadOnly(true);
+        } catch {
+            toast.error("Failed to save changes");
         }
     };
 
-    const handleOpenVideo = () => {
-        if (!note?.videoUrl) return;
-        window.open(note.videoUrl, "_blank", "noopener,noreferrer");
-    };
-
-    const formatDate = (dateString) => {
-        if (!dateString) return "";
-        const d = new Date(dateString);
-        if (Number.isNaN(d.getTime())) return "";
-        return d.toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        });
+    const handleDeleteImage = async (contentId) => {
+        try {
+            await api.post("/notes/content/delete", { contentId });
+            setContents((prev) => prev.filter((c) => c._id !== contentId));
+            toast.success("Image deleted");
+        } catch {
+            toast.error("Failed to delete image");
+        }
     };
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-background text-foreground">
-                <div className="mx-auto max-w-4xl px-4 py-8">
-                    <Skeleton className="mb-6 h-8 w-32" />
-                    <Card>
-                        <CardHeader>
-                            <Skeleton className="h-8 w-3/4" />
-                            <Skeleton className="mt-2 h-4 w-1/2" />
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <Skeleton className="h-4 w-full" />
-                            <Skeleton className="h-4 w-5/6" />
-                            <Skeleton className="h-4 w-4/6" />
-                            <Skeleton className="mt-6 h-32 w-full" />
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="min-h-screen bg-background text-foreground">
-                <div className="mx-auto max-w-4xl px-4 py-8">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => navigate("/notes")}
-                        className="mb-6"
-                    >
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Notes
-                    </Button>
-                    <div className="rounded-lg border border-destructive bg-destructive/10 px-6 py-4">
-                        <p className="font-semibold text-destructive">{error}</p>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={fetchNoteDetails}
-                            className="mt-3"
-                        >
-                            Try Again
-                        </Button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (!note) {
-        return (
-            <div className="min-h-screen bg-background text-foreground">
-                <div className="mx-auto max-w-4xl px-4 py-8">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => navigate("/notes")}
-                        className="mb-6"
-                    >
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Notes
-                    </Button>
-                    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-10 text-center">
-                        <p className="text-lg font-medium">Note not found</p>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            This note may have been deleted or doesn't exist.
-                        </p>
-                    </div>
-                </div>
+            <div className="mx-auto max-w-4xl p-8">
+                <Skeleton className="h-8 w-1/2 mb-6" />
+                <Skeleton className="h-96 w-full" />
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-background text-foreground">
+        <div className="min-h-screen bg-background">
             <div className="mx-auto max-w-4xl px-4 py-8">
-                {/* Back Button */}
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate("/notes")}
-                    className="mb-6"
-                >
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Notes
-                </Button>
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6">
+                    <Button variant="ghost" onClick={() => navigate("/notes")}>
+                        <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                    </Button>
 
-                {/* Note Details Card */}
-                <Card>
-                    <CardHeader>
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <CardTitle className="text-2xl">
-                                        {note.name || "Untitled Notes"}
-                                    </CardTitle>
-                                    {note.isFavourite && (
-                                        <Badge variant="default">
-                                            <Star className="h-3 w-3 mr-1 fill-current" />
-                                            Favourite
-                                        </Badge>
-                                    )}
-                                </div>
-                                {note.description && (
-                                    <CardDescription className="text-base">
-                                        {note.description}
-                                    </CardDescription>
-                                )}
-                            </div>
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 text-sm">
+                            {readOnly ? <Lock size={16} /> : <Unlock size={16} />}
+                            Read only
+                            <Switch checked={!readOnly} onCheckedChange={() => setReadOnly(!readOnly)} />
                         </div>
 
-                        {/* Metadata */}
-                        <div className="mt-4 flex flex-wrap gap-4 text-sm text-muted-foreground">
-                            {note.createdAt && (
-                                <div>
-                                    <span className="font-medium">Created:</span>{" "}
-                                    {formatDate(note.createdAt)}
-                                </div>
-                            )}
-                            {note.updatedAt && note.updatedAt !== note.createdAt && (
-                                <div>
-                                    <span className="font-medium">Updated:</span>{" "}
-                                    {formatDate(note.updatedAt)}
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Collection & Author */}
-                        <div className="mt-3 flex flex-wrap gap-3">
-                            {note.collection && (
-                                <Badge variant="outline">
-                                    Collection:{" "}
-                                    {note.collection.name || note.collection}
-                                </Badge>
-                            )}
-                            {note.user && (
-                                <Badge variant="outline">
-                                    Author:{" "}
-                                    {note.user.name ||
-                                        note.user.email ||
-                                        note.user}
-                                </Badge>
-                            )}
-                        </div>
-                    </CardHeader>
-
-                    <CardContent className="space-y-6">
-                        {/* Video URL */}
-                        {note.videoUrl && (
-                            <div>
-                                <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                                    Video Source
-                                </p>
-                                <a
-                                    href={note.videoUrl}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
-                                >
-                                    {note.videoUrl}
-                                    <ExternalLink className="h-3 w-3" />
-                                </a>
-                            </div>
-                        )}
-
-                        <Separator />
-
-                        {/* Summary */}
-                        {note.summarised_content && (
-                            <div>
-                                <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                                    Summary
-                                </p>
-                                <div className="rounded-lg bg-muted/60 p-4">
-                                    <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                                        {note.summarised_content}
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Full Content */}
-                        {note.content && (
-                            <div>
-                                <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                                    Full Content
-                                </p>
-                                <div className="prose prose-sm dark:prose-invert max-w-none">
-                                    <p className="whitespace-pre-wrap leading-relaxed">
-                                        {note.content}
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Empty State */}
-                        {!note.content && !note.summarised_content && (
-                            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
-                                <p className="text-sm text-muted-foreground">
-                                    No content available for this note yet.
-                                </p>
-                            </div>
-                        )}
-                    </CardContent>
-
-                    <CardFooter className="flex flex-wrap gap-3">
-                        {note.videoUrl && (
-                            <Button onClick={handleOpenVideo}>
-                                <ExternalLink className="mr-2 h-4 w-4" />
-                                Watch Video
+                        {!readOnly && (
+                            <Button onClick={handleSave}>
+                                <Save className="mr-2 h-4 w-4" /> Save
                             </Button>
                         )}
-                        <Button
-                            variant={note.isFavourite ? "default" : "outline"}
-                            onClick={handleToggleFavourite}
-                        >
-                            <Star
-                                className={`mr-2 h-4 w-4 ${
-                                    note.isFavourite ? "fill-current" : ""
-                                }`}
-                            />
-                            {note.isFavourite ? "Unfavourite" : "Mark as Favourite"}
-                        </Button>
-                    </CardFooter>
+                    </div>
+                </div>
+
+                {/* Note Meta */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-2xl">{note.name}</CardTitle>
+                        {note.description && (
+                            <CardDescription>{note.description}</CardDescription>
+                        )}
+                    </CardHeader>
+
+                    <CardContent>
+                        <Separator className="my-6" />
+
+                        {/* Document Area */}
+                        <div className="space-y-6">
+                            {contents.map((block) => (
+                                <div key={block._id} className="grid grid-cols-[80px_1fr] gap-4">
+                                    {/* Timestamp */}
+                                    <div className="text-xs text-muted-foreground pt-2 text-right">
+                                        {formatTimestamp(block.timestamp)}
+                                    </div>
+
+                                    {/* Content */}
+                                    {block.type === "text" ? (
+                                        <div
+                                            contentEditable={!readOnly}
+                                            suppressContentEditableWarning
+                                            className={`prose prose-neutral max-w-none outline-none ${
+                                                !readOnly ? "border-b border-dashed pb-1" : ""
+                                            }`}
+                                            onBlur={(e) => {
+                                                if (readOnly) return;
+                                                setContents((prev) =>
+                                                    prev.map((c) =>
+                                                        c._id === block._id
+                                                            ? { ...c, value: e.target.innerText }
+                                                            : c
+                                                    )
+                                                );
+                                            }}
+                                        >
+                                            {block.value}
+                                        </div>
+                                    ) : (
+                                        <div
+                                            className="flex justify-center"
+                                            onContextMenu={(e) => {
+                                                if (readOnly) return;
+                                                e.preventDefault();
+
+                                                const action = window.prompt(
+                                                    "Type 'delete' to remove or 'download' to save image"
+                                                );
+
+                                                if (action === "delete") {
+                                                    handleDeleteImage(block._id);
+                                                }
+
+                                                if (action === "download") {
+                                                    const a = document.createElement("a");
+                                                    a.href = block.value;
+                                                    a.download = "note-image";
+                                                    a.click();
+                                                }
+                                            }}
+                                        >
+                                            <img
+                                                src={`${import.meta.env.VITE_BASE_URL}/${block.value}`}
+                                                alt="Note"
+                                                className="max-w-[600px] rounded-md border"
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </CardContent>
                 </Card>
             </div>
         </div>

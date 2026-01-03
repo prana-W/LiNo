@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import {toast} from "sonner";
 
 function NotesSkeletonCard() {
     return (
@@ -38,7 +39,6 @@ const NotesDashboard = () => {
     const navigate = useNavigate();
     const [notes, setNotes] = useState([]);
     const [initialLoading, setInitialLoading] = useState(true);
-    const [error, setError] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [filters, setFilters] = useState({});
 
@@ -47,14 +47,12 @@ const NotesDashboard = () => {
     // Fetch all notes
     const fetchNotes = async () => {
         try {
-            setError("");
 
             const { data } = await api.get("/notes");
             const list = Array.isArray(data) ? data : data.notes || [];
             setNotes(list);
         } catch (err) {
-            console.error(err);
-            setError(err?.message || "Failed to load notes. Try again.");
+            toast.error(err?.message || err);
         } finally {
             setInitialLoading(false);
         }
@@ -192,15 +190,7 @@ const NotesDashboard = () => {
     // Filter options for SearchBar
     const filterOptions = [
         {
-            label: "Favourite",
-            value: "favourite",
-            options: [
-                { label: "Favourites Only", value: "true" },
-                { label: "Non-Favourites", value: "false" },
-            ],
-        },
-        {
-            label: "Sort By",
+            label: "",
             value: "sortBy",
             options: [
                 { label: "Newest First", value: "newest" },
@@ -255,13 +245,6 @@ const NotesDashboard = () => {
                         </p>
                     )}
                 </div>
-
-                {/* Error */}
-                {error && (
-                    <div className="mb-4 rounded-lg border border-destructive bg-destructive/10 px-4 py-2 text-sm text-destructive">
-                        {error}
-                    </div>
-                )}
 
                 {/* Loading state (only on initial load) */}
                 {initialLoading ? (

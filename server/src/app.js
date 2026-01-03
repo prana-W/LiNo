@@ -8,6 +8,7 @@ import {authRateLimiter} from './middlewares/rateLimiter.js';
 import morgan from 'morgan';
 import {notesRouter} from './routes/index.js';
 import serviceRouter from "./routes/services.routes.js";
+import path from "path";
 
 const app = express();
 
@@ -26,6 +27,12 @@ app.use(express.json({limit: '100mb'}));
 app.use(express.urlencoded({extended: true}));
 app.use(express.static('public'));
 app.use(cookieParser());
+
+app.use(
+    "/uploads",
+    express.static(path.join(process.cwd(), "uploads"))
+);
+
 
 // API Routes
 
