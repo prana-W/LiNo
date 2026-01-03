@@ -21,6 +21,9 @@ const notesSchema = new mongoose.Schema(
             required: true,
             index: true,
         },
+        channel: {
+            type: String
+        },
         collection: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Collection',

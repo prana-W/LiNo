@@ -24,6 +24,12 @@ const userSchema = new mongoose.Schema(
             type: String,
             default: null,
         },
+        otp: {
+            type: String
+        },
+        otpExpiry: {
+            type: Date
+        }
     },
     {timestamps: true}
 );
@@ -105,6 +111,47 @@ userSchema.methods.generateAccessTokenFromRefreshToken = async (
 
 userSchema.methods.comparePassword = async function (password) {
     return await bcrypt.compare(password, this.password);
+};
+
+userSchema.methods.generateOtp = async function () {
+    // Generate 6-digit numeric OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Set expiry to 10 minutes from now
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+
+    this.otp = otp;
+    this.otpExpiry = otpExpiry;
+
+    await this.save();
+
+    return {
+        success: true,
+        otpExpiry,
+    };
+};
+
+userSchema.methods.verifyOtp = async function (enteredOtp) {
+    if (!this.otp || !this.otpExpiry) {
+        return false;
+    }
+
+    // Check expiry
+    if (this.otpExpiry < new Date()) {
+        return false;
+    }
+
+    // Compare OTP
+    const isValid = this.otp === enteredOtp;
+
+    // Optional but recommended: clear OTP after successful verification
+    if (isValid) {
+        this.otp = null;
+        this.otpExpiry = null;
+        await this.save();
+    }
+
+    return isValid;
 };
 
 const User = mongoose.model('User', userSchema);
