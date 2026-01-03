@@ -1,21 +1,51 @@
-import { HashRouter, Routes, Route } from 'react-router-dom';
-import { Home, Signup, Login } from './pages';
-import Layout from './Layout';
-import Dashboard from "@/pages/Dashboard.jsx";
+import {Home, About, NotFound, Test, Dashboard, Auth} from './pages';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
+import { ThemeProvider } from "@/components/theme-provider"
+import Layout from './Layout.jsx';
+
+
+import {createBrowserRouter, RouterProvider} from 'react-router-dom';
+
+const router = createBrowserRouter([
+    {
+        path: '/',
+        element: <Layout />,
+        children: [
+            {
+                path: '',
+                element: <Home />,
+            },
+            {
+                path: 'about',
+                element: <About />,
+            },
+            {
+                path: 'test',
+                element: <Test />,
+            },
+            {
+                path: 'auth',
+                element: <Auth />,
+            },
+            {
+                path: 'dashboard',
+                element: <Dashboard />,
+            },
+            {
+                path: '*',
+                element: <NotFound />,
+            },
+        ],
+    },
+]);
 
 function App() {
     return (
-        <HashRouter>
-            <Routes>
-                <Route path="/" element={<Layout />}>
-                    <Route path="" element={<Home />} />
-                    <Route path="signup" element={<Signup />} />
-                    <Route path="login" element={<Login />} />
-                    <Route path="dashboard" element={<Dashboard />} />
-                    {/* Add other routes here */}
-                </Route>
-            </Routes>
-        </HashRouter>
+        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+        <ErrorBoundary>
+            <RouterProvider router={router} />
+        </ErrorBoundary>
+        </ThemeProvider>
     );
 }
 

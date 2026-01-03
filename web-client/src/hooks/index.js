@@ -1,6 +1,4 @@
-import useSignup from "./useSignup.js";
-import useLogin from "./useLogin.js";
-// import useCheckHealth from "./useCheckHealth.js";
-//
-// export {useSignup, useLogin, useCheckHealth};
-export {useSignup, useLogin};
+import useApi from '@/hooks/useApi.js';
+import useSocket from '@/hooks/useSocket.js';
+
+export {useApi, useSocket};

@@ -1,15 +1,19 @@
-import NavBar from './components/navbar.jsx';
-import {Outlet} from "react-router-dom";
+import {Outlet} from 'react-router-dom';
+import {Header, Footer} from './components';
+import {Toaster} from '@/components/ui/sonner';
 
-const Layout = () => {
+function Layout() {
     return (
         <>
-
-            <NavBar />
-            <Outlet/>
-
+            <div className="min-h-screen flex flex-col">
+                <Header />
+                <main className="flex-1 flex flex-col">
+                    <Outlet />
+                </main>
+            </div>
+            <Footer />
         </>
-    )
+    );
 }
 
 export default Layout;

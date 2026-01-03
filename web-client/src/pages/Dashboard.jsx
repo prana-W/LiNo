@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "@/services/api.js";
-
+import useApi from "@/hooks/useApi";
 import {
     Card,
     CardHeader,
@@ -37,6 +36,8 @@ const NotesDashboard = () => {
     const [notes, setNotes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+
+    const api = useApi();
 
     // details state
     const [selectedNotes, setSelectedNotes] = useState(null);
