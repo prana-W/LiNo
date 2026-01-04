@@ -46,7 +46,7 @@ const lumpCaption = asyncHandler(async (key) => {
     return str;
 });
 
-// Todo: Fix deletion of collection key as well from Redis and then recreation of it again from scratch
+// Todo: Fix deletion of library key as well from Redis and then recreation of it again from scratch
 const flushData = asyncHandler(async (key) => {
     const content = await lumpCaption(key);
 

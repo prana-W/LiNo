@@ -381,13 +381,13 @@ const NoteDetailsPage = () => {
                                     <span>{formatDate(note.updatedAt)}</span>
                                 </div>
                             )}
-                            {note.collection && (
+                            {note.library && (
                                 <div className="flex flex-col">
                                     <span className="text-muted-foreground font-medium">
-                                        Collection
+                                        Library
                                     </span>
                                     <span>
-                                        {note.collection.name || note.collection}
+                                        {note.library.name || note.library}
                                     </span>
                                 </div>
                             )}

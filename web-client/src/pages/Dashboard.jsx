@@ -91,12 +91,12 @@ const NotesDashboard = () => {
             result = result.filter((note) => !note.isFavourite);
         }
 
-        // Filter by collection
-        if (filters.collection) {
+        // Filter by library
+        if (filters.library) {
             result = result.filter((note) => {
-                const collectionName =
-                    note.collection?.name || note.collection || "";
-                return collectionName === filters.collection;
+                const libraryName =
+                    note.library?.name || note.library || "";
+                return libraryName === filters.library;
             });
         }
 
@@ -119,16 +119,16 @@ const NotesDashboard = () => {
         return result;
     }, [notes, searchTerm, filters]);
 
-    // Extract unique collections for filter dropdown
-    const collectionOptions = useMemo(() => {
-        const collections = new Set();
+    // Extract unique librarys for filter dropdown
+    const libraryOptions = useMemo(() => {
+        const librarys = new Set();
         notes.forEach((note) => {
-            const collectionName = note.collection?.name || note.collection;
-            if (collectionName) {
-                collections.add(collectionName);
+            const libraryName = note.library?.name || note.library;
+            if (libraryName) {
+                librarys.add(libraryName);
             }
         });
-        return Array.from(collections).map((name) => ({
+        return Array.from(librarys).map((name) => ({
             label: name,
             value: name,
         }));
@@ -200,12 +200,12 @@ const NotesDashboard = () => {
         },
     ];
 
-    // Add collection filter if collections exist
-    if (collectionOptions.length > 0) {
+    // Add library filter if librarys exist
+    if (libraryOptions.length > 0) {
         filterOptions.push({
-            label: "Collection",
-            value: "collection",
-            options: collectionOptions,
+            label: "Library",
+            value: "library",
+            options: libraryOptions,
         });
     }
 
@@ -290,11 +290,11 @@ const NotesDashboard = () => {
                                                 {note.name || "Untitled Notes"}
                                             </CardTitle>
                                             <CardDescription className="mt-1 text-xs">
-                                                {note.collection?.name
-                                                    ? `Collection: ${note.collection.name}`
-                                                    : note.collection
-                                                        ? `Collection: ${note.collection}`
-                                                        : "No collection"}
+                                                {note.library?.name
+                                                    ? `Library: ${note.library.name}`
+                                                    : note.library
+                                                        ? `Library: ${note.library}`
+                                                        : "No library"}
                                             </CardDescription>
                                         </div>
                                         {note.isFavourite && (

@@ -16,9 +16,9 @@ const getAllNotes = asyncHandler(async (req, res) => {
     }
 
     // Pipeline, fetch all notes of the user
-    // Only add the necessary details of it - name, description, createdAt, updatedAt, videoUrl, isFavourite, collection
+    // Only add the necessary details of it - name, description, createdAt, updatedAt, videoUrl, isFavourite, library
     // Sort using updatedAt
-    // Populate collection name and id
+    // Populate library name and id
     // Cache everything in Redis temporarily for faster loading speed/fetch
     // Add a worker to manually flush/clean all these Redis cache once in 24 hours
     // Also invalidate and flush the cache when a new notes is added/deleted/updated

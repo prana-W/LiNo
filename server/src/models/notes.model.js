@@ -24,10 +24,10 @@ const notesSchema = new mongoose.Schema(
         channel: {
             type: String
         },
-        collection: {
+        library: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Collection',
-            // default: 'Recently-Added', // add the notesId for "Recently Added" collection by default
+            ref: 'Library',
+            // default: 'Recently-Added', // add the notesId for "Recently Added" library by default
         },
         isFavourite: {
             type: Boolean,
